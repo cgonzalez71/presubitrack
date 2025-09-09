@@ -580,7 +580,7 @@
         </p>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
@@ -595,7 +595,19 @@
             localStorage.setItem('userLanguage', lang);
         }
 
-        function exportToPDF() {
+        // Helper pour convertir une image en Base64
+        async function imageToBase64(url) {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function exportToPDF() {
             const btn = document.getElementById('export-pdf-btn');
             const originalBtnText = btn.innerHTML;
             btn.disabled = true;
@@ -604,58 +616,137 @@
             const { jsPDF } = window.jspdf;
             const contentToExport = document.getElementById('main-content');
             const currentLang = document.documentElement.lang || 'fr';
-            
-            const printableClone = contentToExport.cloneNode(true);
-            document.body.appendChild(printableClone);
+            let printableClone = null;
 
-            printableClone.querySelectorAll('.lang-fr, .lang-en, .lang-es').forEach(el => {
-                if (!el.classList.contains('lang-' + currentLang)) {
-                    el.style.display = 'none';
-                } else {
-                    el.style.display = 'inline';
-                }
-            });
-            
-            printableClone.querySelectorAll('.back-to-top').forEach(el => el.style.display = 'none');
-
-            html2canvas(printableClone, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: false
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
+            try {
+                // 1. Initialiser le PDF et créer la page de garde
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
-                const canvasWidth = canvas.width;
-                const canvasHeight = canvas.height;
-                const ratio = canvasWidth / pdfWidth;
-                const canvasHeightInMM = canvasHeight / ratio;
+                const pdfHeight = pdf.internal.pageSize.getHeight();
                 
-                let position = 0;
+                // Ajout du logo en haut à gauche
+                const logoBase64 = await imageToBase64('data/UbiSolutions.png');
+                pdf.addImage(logoBase64, 'PNG', 15, 15, 60, 15); // x, y, largeur, hauteur
+
+                // Ajout du titre centré
+                pdf.setFontSize(30);
+                pdf.text(
+                    "Présentation UbiTrack", 
+                    pdfWidth / 2, 
+                    pdfHeight / 2, 
+                    { align: 'center' }
+                );
+
+                // Ajout de l'auteur sous le titre
+                pdf.setFontSize(16);
+                pdf.text(
+                    "Auteur : CGZ", 
+                    pdfWidth / 2, 
+                    (pdfHeight / 2) + 15, 
+                    { align: 'center' }
+                );
+
+
+                // 2. Préparer le contenu pour l'impression
+                printableClone = contentToExport.cloneNode(true);
+                document.body.appendChild(printableClone);
+
+                printableClone.querySelectorAll('.lang-fr, .lang-en, .lang-es').forEach(el => {
+                    if (!el.classList.contains('lang-' + currentLang)) {
+                        el.style.display = 'none';
+                    } else {
+                        el.style.display = 'inline';
+                    }
+                });
+                printableClone.querySelectorAll('.back-to-top').forEach(el => el.style.display = 'none');
+
+                // 3. Récupérer les titres pour la table des matières
+                const tocEntries = [];
+                printableClone.querySelectorAll('h2, h3, h4').forEach(header => {
+                    const level = parseInt(header.tagName.substring(1), 10);
+                    const titleSpan = header.querySelector(`.lang-${currentLang}`);
+                    if (titleSpan) {
+                        tocEntries.push({
+                            text: titleSpan.innerText,
+                            level: level,
+                            y: header.offsetTop // Position verticale pour le calcul de la page
+                        });
+                    }
+                });
+                
+                // 4. Utiliser html2canvas pour "photographier" le contenu préparé
+                const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
+                
+                // 5. Calculer la hauteur de page en pixels (ratio de la page A4)
+                const pageHeightInPixels = (pdfHeight * canvas.width) / pdfWidth;
+
+                // 6. Ajouter la page de la Table des Matières (TOC)
+                pdf.addPage();
+                pdf.setFontSize(18);
+                pdf.text(
+                    currentLang === 'fr' ? 'Table des Matières' : (currentLang === 'en' ? 'Table of Contents' : 'Tabla de Contenidos'),
+                    15, 20
+                );
+                
+                let yPos = 35;
+                pdf.setFontSize(12);
+                tocEntries.forEach(entry => {
+                    if (yPos > 270) { // Si on arrive en bas de page, on en crée une nouvelle
+                        pdf.addPage();
+                        yPos = 20;
+                    }
+                    const indent = (entry.level - 2) * 10;
+                    const pageNum = Math.floor(entry.y / pageHeightInPixels) + 3; // +3 car la page 1 est la garde, 2 est la TOC
+                    pdf.text(`${' '.repeat(indent * 2)}${entry.text}`, 15 + indent, yPos);
+                    pdf.text(`${pageNum}`, 190, yPos);
+                    yPos += (entry.level === 2 ? 8 : 7);
+                });
+
+
+                // 7. Ajouter le contenu principal page par page
+                const imgData = canvas.toDataURL('image/png');
+                const canvasHeightInMM = (canvas.height * pdfWidth) / canvas.width;
                 let heightLeft = canvasHeightInMM;
+                let position = 0;
+                
+                pdf.addPage(); // Commence le contenu sur la 3ème page
 
                 pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeightInMM);
-                heightLeft -= pdf.internal.pageSize.getHeight();
+                heightLeft -= pdfHeight;
 
                 while (heightLeft > 0) {
-                    position -= pdf.internal.pageSize.getHeight();
+                    position -= pdfHeight;
                     pdf.addPage();
                     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeightInMM);
-                    heightLeft -= pdf.internal.pageSize.getHeight();
+                    heightLeft -= pdfHeight;
                 }
-                
+
+                // 8. Numéroter toutes les pages
+                const pageCount = pdf.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    pdf.setPage(i);
+                    pdf.setFontSize(10);
+                    pdf.text(
+                        `Page ${i} / ${pageCount}`,
+                        pdf.internal.pageSize.getWidth() - 25,
+                        pdf.internal.pageSize.getHeight() - 10
+                    );
+                }
+
+                // 9. Sauvegarder le PDF
                 pdf.save(`presentation-ubitrack-${currentLang}.pdf`);
 
-            }).catch(err => {
+            } catch (err) {
                 console.error("Erreur lors de la génération du PDF:", err);
                 alert("Erreur lors de la génération du PDF. Assurez-vous d'utiliser un serveur local et vérifiez la console pour plus de détails.");
-            }).finally(() => {
-                if (document.body.contains(printableClone)) {
+            } finally {
+                // Nettoyage et réactivation du bouton
+                if (printableClone && document.body.contains(printableClone)) {
                     document.body.removeChild(printableClone);
                 }
                 btn.disabled = false;
                 btn.innerHTML = originalBtnText;
-            });
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
