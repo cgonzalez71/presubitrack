@@ -648,7 +648,7 @@
                 
                 // 3. Récupérer les positions des titres et des blocs "screenshot"
                 const tocEntries = [];
-                const unbreakableBlocks = []; // Utiliser les blocs .screenshot comme unités inséparables
+                const unbreakableBlocks = [];
 
                 printableClone.querySelectorAll('h2, h3, h4').forEach(header => {
                     const titleSpan = header.querySelector(`.lang-${currentLang}`);
@@ -661,7 +661,6 @@
                     }
                 });
 
-                // NOUVELLE LOGIQUE : Cibler les conteneurs '.screenshot'
                 printableClone.querySelectorAll('.screenshot').forEach(block => {
                     unbreakableBlocks.push({
                         top: block.offsetTop,
@@ -672,48 +671,44 @@
                 // 4. Utiliser html2canvas
                 const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
                 
-                // 5. Calculer la hauteur de page en pixels avec marge
+                // 5. Calculer la hauteur de page en pixels, en réservant les marges
+                const headerMarginMM = 10; // Réserve 10mm (1cm) en haut
                 const footerMarginMM = 20;
-                const contentHeightMM = pdfHeight - footerMarginMM;
+                const contentHeightMM = pdfHeight - headerMarginMM - footerMarginMM;
                 const pageHeightInPixels = (contentHeightMM * canvas.width) / pdfWidth;
 
-                // 6. Ajouter la Table des Matières
+                // 6. Ajouter la Table des Matières (qui respecte déjà la marge)
                 pdf.addPage();
                 pdf.setFontSize(18);
                 pdf.text(
                     currentLang === 'fr' ? 'Table des Matières' : (currentLang === 'en' ? 'Table of Contents' : 'Tabla de Contenidos'),
-                    15, 20
+                    15, headerMarginMM + 10 // Positionne le titre à 20mm du haut
                 );
                 
-                let yPos = 35;
+                let yPos = headerMarginMM + 25; // Positionne la première entrée à 35mm du haut
                 pdf.setFontSize(12);
                 tocEntries.forEach(entry => {
                     if (yPos > 270) {
                         pdf.addPage();
-                        yPos = 20;
+                        yPos = headerMarginMM + 10;
                     }
                     const indent = (entry.level - 2) * 10;
-                    // Le calcul de la page doit aussi prendre en compte la logique de coupe intelligente
-                    // Pour simplifier, nous gardons un calcul approximatif. Une version plus précise
-                    // nécessiterait de pré-calculer tous les sauts de page.
                     const pageNum = Math.floor(entry.y / pageHeightInPixels) + 3;
                     pdf.text(`${' '.repeat(indent * 2)}${entry.text}`, 15 + indent, yPos);
                     pdf.text(`${pageNum}`, 190, yPos);
                     yPos += (entry.level === 2 ? 8 : 7);
                 });
 
-                // 7. Ajouter le contenu avec sauts de page intelligents basés sur les BLOCS
+                // 7. Ajouter le contenu principal avec sauts de page intelligents
                 let currentCanvasY = 0;
                 while (currentCanvasY < canvas.height) {
                     pdf.addPage();
                     let potentialCutY = currentCanvasY + pageHeightInPixels;
                     let bestCutY = potentialCutY;
 
-                    // LOGIQUE CORRIGÉE : Utiliser les blocs inséparables
                     for (const block of unbreakableBlocks) {
                         if (block.top < potentialCutY && block.bottom > potentialCutY) {
-                            // Le bloc est coupé. On ajuste le saut de page pour qu'il soit juste avant le bloc.
-                            bestCutY = block.top - 10; // -10px de marge
+                            bestCutY = block.top - 10;
                             break;
                         }
                     }
@@ -728,7 +723,8 @@
                     pageCtx.drawImage(canvas, 0, currentCanvasY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
 
                     const pageImgData = pageCanvas.toDataURL('image/png');
-                    pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, (sliceHeight * pdfWidth) / canvas.width);
+                    // MODIFICATION : Ajouter l'image en respectant la marge du haut
+                    pdf.addImage(pageImgData, 'PNG', 0, headerMarginMM, pdfWidth, (sliceHeight * pdfWidth) / canvas.width);
 
                     currentCanvasY += sliceHeight;
                 }
@@ -771,4 +767,5 @@
 </body>
 
 </html>
+
 
