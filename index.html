@@ -646,9 +646,9 @@
                 });
                 printableClone.querySelectorAll('.back-to-top').forEach(el => el.style.display = 'none');
                 
-                // 3. Récupérer les positions des titres et des images pour la TOC et les sauts de page
+                // 3. Récupérer les positions des titres et des images
                 const tocEntries = [];
-                const imagePositions = []; // Stocker les positions des images
+                const imagePositions = [];
 
                 printableClone.querySelectorAll('h2, h3, h4').forEach(header => {
                     const titleSpan = header.querySelector(`.lang-${currentLang}`);
@@ -671,8 +671,10 @@
                 // 4. Utiliser html2canvas pour "photographier" le contenu
                 const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
                 
-                // 5. Calculer la hauteur de page en pixels
-                const pageHeightInPixels = (pdfHeight * canvas.width) / pdfWidth;
+                // 5. Calculer la hauteur de page en pixels, en réservant une marge en bas
+                const footerMarginMM = 20; // Réserve 20mm en bas de page
+                const contentHeightMM = pdfHeight - footerMarginMM;
+                const pageHeightInPixels = (contentHeightMM * canvas.width) / pdfWidth;
 
                 // 6. Ajouter la page de la Table des Matières
                 pdf.addPage();
@@ -703,12 +705,10 @@
                     let potentialCutY = currentCanvasY + pageHeightInPixels;
                     let bestCutY = potentialCutY;
 
-                    // Vérifier si le saut de page coupe une image
                     for (const imgPos of imagePositions) {
                         if (imgPos.top < potentialCutY && imgPos.bottom > potentialCutY) {
-                            // L'image est coupée. On ajuste le saut de page pour qu'il soit juste avant l'image.
-                            bestCutY = imgPos.top - 10; // -10px de marge
-                            break; // On a trouvé le premier conflit, on l'utilise
+                            bestCutY = imgPos.top - 10;
+                            break;
                         }
                     }
                     
@@ -722,6 +722,7 @@
                     pageCtx.drawImage(canvas, 0, currentCanvasY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
 
                     const pageImgData = pageCanvas.toDataURL('image/png');
+                    // On ajoute l'image en haut de la page PDF
                     pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, (sliceHeight * pdfWidth) / canvas.width);
 
                     currentCanvasY += sliceHeight;
@@ -735,7 +736,7 @@
                     pdf.text(
                         `Page ${i} / ${pageCount}`,
                         pdf.internal.pageSize.getWidth() - 25,
-                        pdf.internal.pageSize.getHeight() - 10
+                        pdf.internal.pageSize.getHeight() - 10 // Position à 10mm du bas
                     );
                 }
 
@@ -763,4 +764,5 @@
     </script>
 
 </body>
+
 </html>
