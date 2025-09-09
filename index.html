@@ -624,28 +624,14 @@
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
                 
-                // Ajout du logo en haut à gauche
                 const logoBase64 = await imageToBase64('data/UbiSolutions.png');
-                pdf.addImage(logoBase64, 'PNG', 15, 15, 60, 15); // x, y, largeur, hauteur
+                pdf.addImage(logoBase64, 'PNG', 15, 15, 60, 15);
 
-                // Ajout du titre centré
                 pdf.setFontSize(30);
-                pdf.text(
-                    "Présentation UbiTrack", 
-                    pdfWidth / 2, 
-                    pdfHeight / 2, 
-                    { align: 'center' }
-                );
+                pdf.text("Présentation UbiTrack", pdfWidth / 2, pdfHeight / 2, { align: 'center' });
 
-                // Ajout de l'auteur sous le titre
                 pdf.setFontSize(16);
-                pdf.text(
-                    "Auteur : CGZ", 
-                    pdfWidth / 2, 
-                    (pdfHeight / 2) + 15, 
-                    { align: 'center' }
-                );
-
+                pdf.text("Auteur : CGZ", pdfWidth / 2, (pdfHeight / 2) + 15, { align: 'center' });
 
                 // 2. Préparer le contenu pour l'impression
                 printableClone = contentToExport.cloneNode(true);
@@ -659,28 +645,36 @@
                     }
                 });
                 printableClone.querySelectorAll('.back-to-top').forEach(el => el.style.display = 'none');
-
-                // 3. Récupérer les titres pour la table des matières
+                
+                // 3. Récupérer les positions des titres et des images pour la TOC et les sauts de page
                 const tocEntries = [];
+                const imagePositions = []; // Stocker les positions des images
+
                 printableClone.querySelectorAll('h2, h3, h4').forEach(header => {
-                    const level = parseInt(header.tagName.substring(1), 10);
                     const titleSpan = header.querySelector(`.lang-${currentLang}`);
                     if (titleSpan) {
                         tocEntries.push({
                             text: titleSpan.innerText,
-                            level: level,
-                            y: header.offsetTop // Position verticale pour le calcul de la page
+                            level: parseInt(header.tagName.substring(1), 10),
+                            y: header.offsetTop
                         });
                     }
                 });
+
+                printableClone.querySelectorAll('img').forEach(img => {
+                    imagePositions.push({
+                        top: img.offsetTop,
+                        bottom: img.offsetTop + img.offsetHeight
+                    });
+                });
                 
-                // 4. Utiliser html2canvas pour "photographier" le contenu préparé
+                // 4. Utiliser html2canvas pour "photographier" le contenu
                 const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
                 
-                // 5. Calculer la hauteur de page en pixels (ratio de la page A4)
+                // 5. Calculer la hauteur de page en pixels
                 const pageHeightInPixels = (pdfHeight * canvas.width) / pdfWidth;
 
-                // 6. Ajouter la page de la Table des Matières (TOC)
+                // 6. Ajouter la page de la Table des Matières
                 pdf.addPage();
                 pdf.setFontSize(18);
                 pdf.text(
@@ -691,34 +685,46 @@
                 let yPos = 35;
                 pdf.setFontSize(12);
                 tocEntries.forEach(entry => {
-                    if (yPos > 270) { // Si on arrive en bas de page, on en crée une nouvelle
+                    if (yPos > 270) {
                         pdf.addPage();
                         yPos = 20;
                     }
                     const indent = (entry.level - 2) * 10;
-                    const pageNum = Math.floor(entry.y / pageHeightInPixels) + 3; // +3 car la page 1 est la garde, 2 est la TOC
+                    const pageNum = Math.floor(entry.y / pageHeightInPixels) + 3;
                     pdf.text(`${' '.repeat(indent * 2)}${entry.text}`, 15 + indent, yPos);
                     pdf.text(`${pageNum}`, 190, yPos);
                     yPos += (entry.level === 2 ? 8 : 7);
                 });
 
-
-                // 7. Ajouter le contenu principal page par page
-                const imgData = canvas.toDataURL('image/png');
-                const canvasHeightInMM = (canvas.height * pdfWidth) / canvas.width;
-                let heightLeft = canvasHeightInMM;
-                let position = 0;
-                
-                pdf.addPage(); // Commence le contenu sur la 3ème page
-
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeightInMM);
-                heightLeft -= pdfHeight;
-
-                while (heightLeft > 0) {
-                    position -= pdfHeight;
+                // 7. Ajouter le contenu principal avec sauts de page intelligents
+                let currentCanvasY = 0;
+                while (currentCanvasY < canvas.height) {
                     pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeightInMM);
-                    heightLeft -= pdfHeight;
+                    let potentialCutY = currentCanvasY + pageHeightInPixels;
+                    let bestCutY = potentialCutY;
+
+                    // Vérifier si le saut de page coupe une image
+                    for (const imgPos of imagePositions) {
+                        if (imgPos.top < potentialCutY && imgPos.bottom > potentialCutY) {
+                            // L'image est coupée. On ajuste le saut de page pour qu'il soit juste avant l'image.
+                            bestCutY = imgPos.top - 10; // -10px de marge
+                            break; // On a trouvé le premier conflit, on l'utilise
+                        }
+                    }
+                    
+                    const sliceHeight = Math.min(bestCutY - currentCanvasY, canvas.height - currentCanvasY);
+
+                    const pageCanvas = document.createElement('canvas');
+                    pageCanvas.width = canvas.width;
+                    pageCanvas.height = sliceHeight;
+                    
+                    const pageCtx = pageCanvas.getContext('2d');
+                    pageCtx.drawImage(canvas, 0, currentCanvasY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+
+                    const pageImgData = pageCanvas.toDataURL('image/png');
+                    pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, (sliceHeight * pdfWidth) / canvas.width);
+
+                    currentCanvasY += sliceHeight;
                 }
 
                 // 8. Numéroter toutes les pages
@@ -740,7 +746,7 @@
                 console.error("Erreur lors de la génération du PDF:", err);
                 alert("Erreur lors de la génération du PDF. Assurez-vous d'utiliser un serveur local et vérifiez la console pour plus de détails.");
             } finally {
-                // Nettoyage et réactivation du bouton
+                // Nettoyage
                 if (printableClone && document.body.contains(printableClone)) {
                     document.body.removeChild(printableClone);
                 }
