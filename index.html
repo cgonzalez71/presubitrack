@@ -646,9 +646,9 @@
                 });
                 printableClone.querySelectorAll('.back-to-top').forEach(el => el.style.display = 'none');
                 
-                // 3. Récupérer les positions des titres et des images
+                // 3. Récupérer les positions des titres et des blocs "screenshot"
                 const tocEntries = [];
-                const imagePositions = [];
+                const unbreakableBlocks = []; // Utiliser les blocs .screenshot comme unités inséparables
 
                 printableClone.querySelectorAll('h2, h3, h4').forEach(header => {
                     const titleSpan = header.querySelector(`.lang-${currentLang}`);
@@ -661,22 +661,23 @@
                     }
                 });
 
-                printableClone.querySelectorAll('img').forEach(img => {
-                    imagePositions.push({
-                        top: img.offsetTop,
-                        bottom: img.offsetTop + img.offsetHeight
+                // NOUVELLE LOGIQUE : Cibler les conteneurs '.screenshot'
+                printableClone.querySelectorAll('.screenshot').forEach(block => {
+                    unbreakableBlocks.push({
+                        top: block.offsetTop,
+                        bottom: block.offsetTop + block.offsetHeight
                     });
                 });
                 
-                // 4. Utiliser html2canvas pour "photographier" le contenu
+                // 4. Utiliser html2canvas
                 const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
                 
-                // 5. Calculer la hauteur de page en pixels, en réservant une marge en bas
-                const footerMarginMM = 20; // Réserve 20mm en bas de page
+                // 5. Calculer la hauteur de page en pixels avec marge
+                const footerMarginMM = 20;
                 const contentHeightMM = pdfHeight - footerMarginMM;
                 const pageHeightInPixels = (contentHeightMM * canvas.width) / pdfWidth;
 
-                // 6. Ajouter la page de la Table des Matières
+                // 6. Ajouter la Table des Matières
                 pdf.addPage();
                 pdf.setFontSize(18);
                 pdf.text(
@@ -692,22 +693,27 @@
                         yPos = 20;
                     }
                     const indent = (entry.level - 2) * 10;
+                    // Le calcul de la page doit aussi prendre en compte la logique de coupe intelligente
+                    // Pour simplifier, nous gardons un calcul approximatif. Une version plus précise
+                    // nécessiterait de pré-calculer tous les sauts de page.
                     const pageNum = Math.floor(entry.y / pageHeightInPixels) + 3;
                     pdf.text(`${' '.repeat(indent * 2)}${entry.text}`, 15 + indent, yPos);
                     pdf.text(`${pageNum}`, 190, yPos);
                     yPos += (entry.level === 2 ? 8 : 7);
                 });
 
-                // 7. Ajouter le contenu principal avec sauts de page intelligents
+                // 7. Ajouter le contenu avec sauts de page intelligents basés sur les BLOCS
                 let currentCanvasY = 0;
                 while (currentCanvasY < canvas.height) {
                     pdf.addPage();
                     let potentialCutY = currentCanvasY + pageHeightInPixels;
                     let bestCutY = potentialCutY;
 
-                    for (const imgPos of imagePositions) {
-                        if (imgPos.top < potentialCutY && imgPos.bottom > potentialCutY) {
-                            bestCutY = imgPos.top - 10;
+                    // LOGIQUE CORRIGÉE : Utiliser les blocs inséparables
+                    for (const block of unbreakableBlocks) {
+                        if (block.top < potentialCutY && block.bottom > potentialCutY) {
+                            // Le bloc est coupé. On ajuste le saut de page pour qu'il soit juste avant le bloc.
+                            bestCutY = block.top - 10; // -10px de marge
                             break;
                         }
                     }
@@ -722,7 +728,6 @@
                     pageCtx.drawImage(canvas, 0, currentCanvasY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
 
                     const pageImgData = pageCanvas.toDataURL('image/png');
-                    // On ajoute l'image en haut de la page PDF
                     pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, (sliceHeight * pdfWidth) / canvas.width);
 
                     currentCanvasY += sliceHeight;
@@ -736,7 +741,7 @@
                     pdf.text(
                         `Page ${i} / ${pageCount}`,
                         pdf.internal.pageSize.getWidth() - 25,
-                        pdf.internal.pageSize.getHeight() - 10 // Position à 10mm du bas
+                        pdf.internal.pageSize.getHeight() - 10
                     );
                 }
 
@@ -766,3 +771,4 @@
 </body>
 
 </html>
+
