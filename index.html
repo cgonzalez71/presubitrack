@@ -274,7 +274,6 @@
         .cover-page, .contacts-page {
             display: none;
         }
-
     </style>
 </head>
 <body>
@@ -452,19 +451,21 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            const contactsData = {
-              "contacts": {
-                "commercial": [
-                  { "nom": "Jean Dupont", "téléphone": "0123456789", "email": "jean.dupont@email.com" },
-                  { "nom": "Paul Bernard", "téléphone": "0611223344", "email": "paul.bernard@email.com" }
-                ],
-                "technical": [
-                  { "nom": "Marie Martin", "téléphone": "0987654321", "email": "marie.martin@email.com" }
-                ]
-              }
-            };
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            let contactsData = {};
+
+            try {
+                const response = await fetch('data/UBI-Contacts.json');
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                contactsData = await response.json();
+            } catch (error) {
+                console.error("Impossible de charger le fichier de contacts:", error);
+                alert("Attention : Le fichier de contacts (data/UBI-Contacts.json) est introuvable ou invalide. Les listes de contacts seront vides.");
+                contactsData = { contacts: { commercial: [], technique: [] } }; // Fallback
+            }
 
             const translations = {
                 fr: {
@@ -499,7 +500,7 @@
                     customization_client_logo: "Logo du Client (PNG, JPG)",
                     customization_commercial_title: "Contact Commercial",
                     customization_technical_title: "Contact Technique",
-                    customization_contact_name: "Nom",
+                    customization_contact_name: "Sélectionner un contact",
                     footer_text: "© 2025 UBI Solutions. Tous droits réservés.",
                     pdf_title: "Présentation UbiTrack",
                     pdf_author: "Auteur : CGZ",
@@ -540,7 +541,7 @@
                     customization_client_logo: "Client Logo (PNG, JPG)",
                     customization_commercial_title: "Commercial Contact",
                     customization_technical_title: "Technical Contact",
-                    customization_contact_name: "Name",
+                    customization_contact_name: "Select a contact",
                     footer_text: "© 2025 UBI Solutions. All rights reserved.",
                     pdf_title: "UbiTrack Presentation",
                     pdf_author: "Author: CGZ",
@@ -581,7 +582,7 @@
                     customization_client_logo: "Logo del Cliente (PNG, JPG)",
                     customization_commercial_title: "Contacto Comercial",
                     customization_technical_title: "Contacto Técnico",
-                    customization_contact_name: "Nombre",
+                    customization_contact_name: "Seleccionar un contacto",
                     footer_text: "© 2025 UBI Solutions. Todos los derechos reservados.",
                     pdf_title: "Presentación UbiTrack",
                     pdf_author: "Autor: CGZ",
@@ -638,19 +639,21 @@
             function populateContactDropdown(selectId, type, lang) {
                 const select = document.getElementById(selectId);
                 const savedName = localStorage.getItem(`${type}Name`);
-                select.innerHTML = ''; // Clear options
+                select.innerHTML = ''; 
 
                 const defaultOption = document.createElement('option');
                 defaultOption.value = "";
                 defaultOption.textContent = translations[lang].select_option_default;
                 select.appendChild(defaultOption);
 
-                contactsData.contacts[type].forEach(contact => {
-                    const option = document.createElement('option');
-                    option.value = contact.nom;
-                    option.textContent = contact.nom;
-                    select.appendChild(option);
-                });
+                if (contactsData.contacts && contactsData.contacts[type]) {
+                    contactsData.contacts[type].forEach(contact => {
+                        const option = document.createElement('option');
+                        option.value = contact.nom;
+                        option.textContent = contact.nom;
+                        select.appendChild(option);
+                    });
+                }
 
                 if (savedName) {
                     select.value = savedName;
@@ -705,17 +708,19 @@
                 const select = document.getElementById(`${type}ContactSelect`);
                 select.addEventListener('change', (e) => {
                     const selectedName = e.target.value;
-                    const contactList = contactsData.contacts[type];
-                    const selectedContact = contactList.find(c => c.nom === selectedName);
+                    if (contactsData.contacts && contactsData.contacts[type]) {
+                        const contactList = contactsData.contacts[type];
+                        const selectedContact = contactList.find(c => c.nom === selectedName);
 
-                    if(selectedContact) {
-                        localStorage.setItem(`${type}Name`, selectedContact.nom);
-                        localStorage.setItem(`${type}Email`, selectedContact.email);
-                        localStorage.setItem(`${type}Phone`, selectedContact.téléphone);
-                    } else {
-                        localStorage.removeItem(`${type}Name`);
-                        localStorage.removeItem(`${type}Email`);
-                        localStorage.removeItem(`${type}Phone`);
+                        if(selectedContact) {
+                            localStorage.setItem(`${type}Name`, selectedContact.nom);
+                            localStorage.setItem(`${type}Email`, selectedContact.email);
+                            localStorage.setItem(`${type}Phone`, selectedContact.téléphone);
+                        } else {
+                            localStorage.removeItem(`${type}Name`);
+                            localStorage.removeItem(`${type}Email`);
+                            localStorage.removeItem(`${type}Phone`);
+                        }
                     }
                 });
             });
@@ -725,4 +730,3 @@
 
 </body>
 </html>
-
