@@ -597,9 +597,9 @@
 
     <footer>
         <p>
-            <span class="lang-fr">Présentation générée pour la solution UbiTrack.</span>
-            <span class="lang-en">Presentation generated for the UbiTrack solution.</span>
-            <span class="lang-es">Presentación generada para la solución UbiTrack.</span>
+            <span class="lang-fr">© 2025 UBI Solutions. Tous droits réservés.</span>
+            <span class="lang-en">© 2025 UBI Solutions. All rights reserved.</span>
+            <span class="lang-es">© 2025 UBI Solutions. Todos los derechos reservados.</span>
         </p>
     </footer>
 
@@ -616,11 +616,9 @@
             });
             document.documentElement.lang = lang;
             localStorage.setItem('userLanguage', lang);
-            // Mettre à jour la sélection de la liste déroulante
             document.getElementById('lang-select').value = lang;
         }
 
-        // Helper pour convertir une image en Base64
         async function imageToBase64(url) {
             const response = await fetch(url);
             const blob = await response.blob();
@@ -644,7 +642,6 @@
             let printableClone = null;
 
             try {
-                // 1. Initialiser le PDF et créer la page de garde
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -658,7 +655,6 @@
                 pdf.setFontSize(16);
                 pdf.text("Auteur : CGZ", pdfWidth / 2, (pdfHeight / 2) + 15, { align: 'center' });
 
-                // 2. Préparer le contenu pour l'impression
                 printableClone = contentToExport.cloneNode(true);
                 document.body.appendChild(printableClone);
 
@@ -671,7 +667,6 @@
                 });
                 printableClone.querySelectorAll('.back-to-top').forEach(el => el.style.display = 'none');
                 
-                // 3. Récupérer les positions des titres et des blocs "screenshot"
                 const tocEntries = [];
                 const unbreakableBlocks = []; 
 
@@ -693,16 +688,13 @@
                     });
                 });
                 
-                // 4. Utiliser html2canvas
                 const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
                 
-                // 5. Calculer la hauteur de page en pixels avec marges
                 const headerMarginMM = 10; 
                 const footerMarginMM = 20;
                 const contentHeightMM = pdfHeight - headerMarginMM - footerMarginMM;
                 const pageHeightInPixels = (contentHeightMM * canvas.width) / pdfWidth;
 
-                // 6. Ajouter la Table des Matières
                 pdf.addPage();
                 pdf.setFontSize(18);
                 pdf.text(
@@ -724,7 +716,6 @@
                     yPos += (entry.level === 2 ? 8 : 7);
                 });
 
-                // 7. Ajouter le contenu avec sauts de page intelligents
                 let currentCanvasY = 0;
                 while (currentCanvasY < canvas.height) {
                     pdf.addPage();
@@ -753,7 +744,6 @@
                     currentCanvasY += sliceHeight;
                 }
 
-                // 8. Numéroter toutes les pages
                 const pageCount = pdf.internal.getNumberOfPages();
                 for (let i = 1; i <= pageCount; i++) {
                     pdf.setPage(i);
@@ -765,14 +755,12 @@
                     );
                 }
 
-                // 9. Sauvegarder le PDF
                 pdf.save(`presentation-ubitrack-${currentLang}.pdf`);
 
             } catch (err) {
                 console.error("Erreur lors de la génération du PDF:", err);
                 alert("Erreur lors de la génération du PDF. Assurez-vous d'utiliser un serveur local et vérifiez la console pour plus de détails.");
             } finally {
-                // Nettoyage
                 if (printableClone && document.body.contains(printableClone)) {
                     document.body.removeChild(printableClone);
                 }
@@ -784,16 +772,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             const langSelect = document.getElementById('lang-select');
             
-            // Récupérer la langue et initialiser la page
             const savedLang = localStorage.getItem('userLanguage') || 'fr';
             switchLanguage(savedLang);
 
-            // Gérer le changement de langue
             langSelect.addEventListener('change', (event) => {
                 switchLanguage(event.target.value);
             });
 
-            // Attacher l'événement au bouton d'export
             document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
         });
     </script>
