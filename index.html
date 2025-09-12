@@ -38,16 +38,27 @@
         header {
             background: var(--primary-color);
             color: #fff;
-            padding: 0.75rem 0;
+            padding: 0.5rem 0; /* Un peu moins de padding vertical pour accommoder le sous-titre */
             text-align: center;
             position: relative; /* Pour positionner les logos */
             display: flex;
             align-items: center;
             justify-content: center;
         }
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
         header h1 {
             margin: 0;
-            font-size: 2em;
+            font-size: 1.8em; /* Légèrement réduit pour l'équilibre */
+        }
+        .header-subtitle {
+            margin: 4px 0 0 0;
+            font-size: 0.9em;
+            font-weight: 300;
+            opacity: 0.9;
         }
         .header-logo {
             position: absolute;
@@ -211,11 +222,18 @@
             <div class="header-logo left">
                 <img src="data/logo.png" alt="Logo UBI Solutions">
             </div>
-            <h1>
-                <span class="lang-fr">Solution de Traçabilité RFID : UbiTrack</span>
-                <span class="lang-en">RFID Tracking Solution: UbiTrack</span>
-                <span class="lang-es">Solución de Trazabilidad RFID: UbiTrack</span>
-            </h1>
+            <div class="title-container">
+                <h1>
+                    <span class="lang-fr">Solution de Traçabilité RFID : UbiTrack</span>
+                    <span class="lang-en">RFID Tracking Solution: UbiTrack</span>
+                    <span class="lang-es">Solución de Trazabilidad RFID: UbiTrack</span>
+                </h1>
+                <p class="header-subtitle">
+                    <span class="lang-fr">Propulsée par UBI Solutions - Optimisez Votre Traçabilité en Temps Réel</span>
+                    <span class="lang-en">Powered by UBI Solutions - Optimize Your Real-Time Tracking</span>
+                    <span class="lang-es">Impulsado por UBI Solutions - Optimice Su Trazabilidad en Tiempo Real</span>
+                </p>
+            </div>
             <div class="header-logo right">
                 <img src="data/UbiSolutions.png" alt="Logo UBI Solutions">
             </div>
@@ -580,7 +598,7 @@
         </p>
     </footer>
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
@@ -648,7 +666,7 @@
                 
                 // 3. Récupérer les positions des titres et des blocs "screenshot"
                 const tocEntries = [];
-                const unbreakableBlocks = [];
+                const unbreakableBlocks = []; 
 
                 printableClone.querySelectorAll('h2, h3, h4').forEach(header => {
                     const titleSpan = header.querySelector(`.lang-${currentLang}`);
@@ -660,7 +678,7 @@
                         });
                     }
                 });
-
+                
                 printableClone.querySelectorAll('.screenshot').forEach(block => {
                     unbreakableBlocks.push({
                         top: block.offsetTop,
@@ -671,21 +689,21 @@
                 // 4. Utiliser html2canvas
                 const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
                 
-                // 5. Calculer la hauteur de page en pixels, en réservant les marges
-                const headerMarginMM = 10; // Réserve 10mm (1cm) en haut
+                // 5. Calculer la hauteur de page en pixels avec marges
+                const headerMarginMM = 10; 
                 const footerMarginMM = 20;
                 const contentHeightMM = pdfHeight - headerMarginMM - footerMarginMM;
                 const pageHeightInPixels = (contentHeightMM * canvas.width) / pdfWidth;
 
-                // 6. Ajouter la Table des Matières (qui respecte déjà la marge)
+                // 6. Ajouter la Table des Matières
                 pdf.addPage();
                 pdf.setFontSize(18);
                 pdf.text(
                     currentLang === 'fr' ? 'Table des Matières' : (currentLang === 'en' ? 'Table of Contents' : 'Tabla de Contenidos'),
-                    15, headerMarginMM + 10 // Positionne le titre à 20mm du haut
+                    15, headerMarginMM + 10
                 );
                 
-                let yPos = headerMarginMM + 25; // Positionne la première entrée à 35mm du haut
+                let yPos = headerMarginMM + 25;
                 pdf.setFontSize(12);
                 tocEntries.forEach(entry => {
                     if (yPos > 270) {
@@ -699,7 +717,7 @@
                     yPos += (entry.level === 2 ? 8 : 7);
                 });
 
-                // 7. Ajouter le contenu principal avec sauts de page intelligents
+                // 7. Ajouter le contenu avec sauts de page intelligents
                 let currentCanvasY = 0;
                 while (currentCanvasY < canvas.height) {
                     pdf.addPage();
@@ -723,7 +741,6 @@
                     pageCtx.drawImage(canvas, 0, currentCanvasY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
 
                     const pageImgData = pageCanvas.toDataURL('image/png');
-                    // MODIFICATION : Ajouter l'image en respectant la marge du haut
                     pdf.addImage(pageImgData, 'PNG', 0, headerMarginMM, pdfWidth, (sliceHeight * pdfWidth) / canvas.width);
 
                     currentCanvasY += sliceHeight;
@@ -765,8 +782,4 @@
     </script>
 
 </body>
-
 </html>
-
-
-
