@@ -2,22 +2,38 @@
   "contacts": {
     "commercial": [
       {
-        "nom": "Jean Dupont",
-        "téléphone": "0123456789",
-        "email": "jean.dupont@email.com"
+        "nom": "Fabrice Zerah",
+        "téléphone": "+33668678889",
+        "email": "fabrice.zerah@ubisolutions.net"
       },
       {
-        "nom": "Paul Bernard",
-        "téléphone": "0611223344",
-        "email": "paul.bernard@email.com"
+        "nom": "Renaud Munier",
+        "téléphone": "+33658011857",
+        "email": "renaud.munier@ubisolutions.net"
+      },
+      {
+        "nom": "Foudil Dekhinet",
+        "téléphone": "+33673320026",
+        "email": "foudil.dekhinet@ubisolutions.net"
+      },
+      {
+        "nom": "Xavier Levefre",
+        "téléphone": "+33760062628",
+        "email": "xavier.lefevre@ubisolutions.net"
       }
     ],
     "technical": [
       {
-        "nom": "Marie Martin",
-        "téléphone": "0987654321",
-        "email": "marie.martin@email.com"
+        "nom": "Christophe Gonzalez",
+        "téléphone": "+33664432305",
+        "email": "christophe.gonzalez@ubisolutions.net"
+      }
+      {
+        "nom": "Sébastien Gatt",
+        "téléphone": "+33658904147",
+        "email": "sebastien.gatt@ubisolutions.net"
       }
     ]
   }
+
 }
