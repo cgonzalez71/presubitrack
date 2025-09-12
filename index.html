@@ -239,14 +239,25 @@
             .section:first-of-type {
                 page-break-before: auto;
             }
-            .cover-page {
+            .cover-page, .toc-page {
+                page-break-after: always;
+            }
+            .contacts-page {
+                page-break-before: always;
+            }
+            .cover-page, .contacts-page, .toc-page {
                 display: flex !important;
                 flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
                 height: 100vh;
-                page-break-after: always;
+            }
+            .cover-page {
+                justify-content: center;
+                text-align: center;
+            }
+             .contacts-page, .toc-page {
+                justify-content: flex-start;
+                text-align: left;
+                padding-top: 1.5cm;
             }
             .cover-page .ubi-logo-cover {
                 max-width: 250px;
@@ -259,19 +270,16 @@
             }
             .cover-page h1 { font-size: 2.5em; }
             .cover-page p { font-size: 1.2em; }
+            .contacts-container { display: flex; gap: 20px; }
+            .contact-block { flex: 1; }
+            #pdf-toc-list { list-style: none; padding: 0; }
+            #pdf-toc-list li { font-size: 1.2em; margin-bottom: 10px; }
+            #pdf-toc-list a { text-decoration: none; color: black; }
             .content-item {
                  page-break-inside: avoid;
             }
-            .contacts-page {
-                display: flex !important;
-                flex-direction: column;
-                padding-top: 1.5cm;
-                page-break-before: always;
-            }
-            .contacts-container { display: flex; gap: 20px; }
-            .contact-block { flex: 1; }
         }
-        .cover-page, .contacts-page {
+        .cover-page, .contacts-page, .toc-page {
             display: none;
         }
 
@@ -282,26 +290,12 @@
     <div class="cover-page">
         <img src="data/UbiSolutions.png" class="ubi-logo-cover" alt="UBI Solutions Logo">
         <h1 data-lang-key="pdf_title"></h1>
-        <p data-lang-key="pdf_author"></p>
         <img id="clientLogoCover" src="" class="client-logo-cover" alt="Client Logo" style="display:none;">
         <p id="clientNameCover"></p>
     </div>
-    <div class="contacts-page">
-        <h2 data-lang-key="pdf_contacts_title"></h2>
-        <div class="contacts-container">
-            <div class="contact-block">
-                <h3 data-lang-key="pdf_commercial_contact_title"></h3>
-                <p id="pdfCommercialName"></p>
-                <p id="pdfCommercialEmail"></p>
-                <p id="pdfCommercialPhone"></p>
-            </div>
-            <div class="contact-block">
-                <h3 data-lang-key="pdf_technical_contact_title"></h3>
-                <p id="pdfTechnicalName"></p>
-                <p id="pdfTechnicalEmail"></p>
-                <p id="pdfTechnicalPhone"></p>
-            </div>
-        </div>
+    <div class="toc-page">
+        <h2 data-lang-key="pdf_toc_title"></h2>
+        <ul id="pdf-toc-list"></ul>
     </div>
 
 
@@ -451,6 +445,24 @@
     <footer class="footer">
         <p data-lang-key="footer_text"></p>
     </footer>
+    
+    <div class="contacts-page">
+        <h2 data-lang-key="pdf_contacts_title"></h2>
+        <div class="contacts-container">
+            <div class="contact-block">
+                <h3 data-lang-key="pdf_commercial_contact_title"></h3>
+                <p id="pdfCommercialName"></p>
+                <p id="pdfCommercialEmail"></p>
+                <p id="pdfCommercialPhone"></p>
+            </div>
+            <div class="contact-block">
+                <h3 data-lang-key="pdf_technical_contact_title"></h3>
+                <p id="pdfTechnicalName"></p>
+                <p id="pdfTechnicalEmail"></p>
+                <p id="pdfTechnicalPhone"></p>
+            </div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
@@ -466,7 +478,7 @@
             } catch (error) {
                 console.error("Impossible de charger le fichier de contacts:", error);
                 alert("Attention : Le fichier de contacts (data/UBI-Contacts.json) est introuvable ou invalide. Les listes de contacts seront vides.");
-                contactsData = { contacts: { commercial: [], technique: [] } }; // Fallback
+                contactsData = { contacts: { commercial: [], technique: [] } };
             }
 
             const translations = {
@@ -505,7 +517,7 @@
                     customization_contact_name: "Sélectionner un contact",
                     footer_text: "© 2025 UBI Solutions. Tous droits réservés.",
                     pdf_title: "Présentation UbiTrack",
-                    pdf_author: "Auteur : CGZ",
+                    pdf_toc_title: "Table des Matières",
                     pdf_contacts_title: "Contacts",
                     pdf_commercial_contact_title: "Contact Commercial",
                     pdf_technical_contact_title: "Contact Technique",
@@ -546,7 +558,7 @@
                     customization_contact_name: "Select a contact",
                     footer_text: "© 2025 UBI Solutions. All rights reserved.",
                     pdf_title: "UbiTrack Presentation",
-                    pdf_author: "Author: CGZ",
+                    pdf_toc_title: "Table of Contents",
                     pdf_contacts_title: "Contacts",
                     pdf_commercial_contact_title: "Commercial Contact",
                     pdf_technical_contact_title: "Technical Contact",
@@ -587,7 +599,7 @@
                     customization_contact_name: "Seleccionar un contacto",
                     footer_text: "© 2025 UBI Solutions. Todos los derechos reservados.",
                     pdf_title: "Presentación UbiTrack",
-                    pdf_author: "Autor: CGZ",
+                    pdf_toc_title: "Tabla de Contenidos",
                     pdf_contacts_title: "Contactos",
                     pdf_commercial_contact_title: "Contacto Comercial",
                     pdf_technical_contact_title: "Contacto Técnico",
@@ -615,7 +627,6 @@
             function preparePdfCustomElements() {
                 const lang = localStorage.getItem('selectedLanguage') || 'fr';
                 document.querySelector('.cover-page h1').textContent = translations[lang].pdf_title;
-                document.querySelector('.cover-page p').textContent = translations[lang].pdf_author;
                 const clientName = localStorage.getItem('clientName') || '';
                 document.getElementById('clientNameCover').textContent = clientName;
                 const clientLogo = localStorage.getItem('clientLogoB64');
@@ -636,6 +647,22 @@
                 document.getElementById('pdfTechnicalName').textContent = `Nom: ${localStorage.getItem('technicalName') || ''}`;
                 document.getElementById('pdfTechnicalEmail').textContent = `Email: ${localStorage.getItem('technicalEmail') || ''}`;
                 document.getElementById('pdfTechnicalPhone').textContent = `Tél: ${localStorage.getItem('technicalPhone') || ''}`;
+            }
+            
+            function preparePdfToc() {
+                const lang = localStorage.getItem('selectedLanguage') || 'fr';
+                const tocList = document.getElementById('pdf-toc-list');
+                tocList.innerHTML = '';
+                document.querySelectorAll('.section h2').forEach(header => {
+                    const key = header.getAttribute('data-lang-key');
+                    const sectionId = header.parentElement.id;
+                    if(key && translations[lang][key] && sectionId !== 'customization') {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<a href="#${sectionId}">${translations[lang][key]}</a>`;
+                        tocList.appendChild(listItem);
+                    }
+                });
+                document.querySelector('.toc-page h2').textContent = translations[lang].pdf_toc_title;
             }
 
             function populateContactDropdown(selectId, type, lang) {
@@ -673,6 +700,7 @@
 
             exportPdfBtn.addEventListener('click', () => {
                 preparePdfCustomElements();
+                preparePdfToc();
                 window.print();
             });
 
@@ -732,4 +760,3 @@
 
 </body>
 </html>
-
