@@ -450,6 +450,9 @@
         <p data-lang-key="footer_text"></p>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
 
@@ -660,21 +663,214 @@
                 }
             }
 
-            // --- Initialisation ---
+            async function imageToBase64(url_or_file) {
+                if (typeof url_or_file === 'string') {
+                    const response = await fetch(url_or_file);
+                    const blob = await response.blob();
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                } else {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(url_or_file);
+                    });
+                }
+            }
+
+            async function exportToPDF() {
+                const btn = document.getElementById('export-pdf-btn');
+                const originalBtnText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '...';
+
+                const { jsPDF } = window.jspdf;
+                const contentToExport = document.getElementById('main-content');
+                const currentLang = document.documentElement.lang || 'fr';
+                let printableClone = null;
+
+                try {
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    
+                    const logoBase64 = await imageToBase64('data/UbiSolutions.png');
+                    pdf.addImage(logoBase64, 'PNG', 15, 15, 60, 15);
+                    pdf.setFontSize(30);
+                    pdf.text("Présentation UbiTrack", pdfWidth / 2, pdfHeight / 2 - 10, { align: 'center' });
+                    pdf.setFontSize(16);
+                    pdf.text("Auteur : CGZ", pdfWidth / 2, pdfHeight / 2, { align: 'center' });
+
+                    const clientName = document.getElementById('clientName').value;
+                    const clientLogoFile = document.getElementById('clientLogo').files[0];
+                    if (clientName) {
+                        pdf.setFontSize(20);
+                        pdf.text(clientName, pdfWidth / 2, pdfHeight / 2 + 20, { align: 'center' });
+                    }
+                    if (clientLogoFile) {
+                        const clientLogoBase64 = await imageToBase64(clientLogoFile);
+                        pdf.addImage(clientLogoBase64, 'PNG', pdfWidth / 2 - 25, pdfHeight / 2 + 30, 50, 25, undefined, 'FAST');
+                    }
+                    
+                    printableClone = contentToExport.cloneNode(true);
+                    document.body.appendChild(printableClone);
+
+                    printableClone.querySelectorAll('.lang-fr, .lang-en, .lang-es').forEach(el => {
+                        if (!el.classList.contains('lang-' + currentLang)) {
+                            el.style.display = 'none';
+                        } else {
+                            el.style.display = 'inline';
+                        }
+                    });
+                    printableClone.querySelectorAll('.back-to-top, #customization').forEach(el => el.style.display = 'none');
+                    
+                    const tocEntries = [];
+                    const unbreakableBlocks = []; 
+                    printableClone.querySelectorAll('h2, h3, h4').forEach(header => {
+                        const titleSpan = header.querySelector(`.lang-${currentLang}`);
+                        if (titleSpan && header.closest('#customization') === null) {
+                            tocEntries.push({
+                                text: titleSpan.innerText,
+                                level: parseInt(header.tagName.substring(1), 10),
+                                y: header.offsetTop
+                            });
+                        }
+                    });
+                    
+                    printableClone.querySelectorAll('.screenshot').forEach(block => {
+                        unbreakableBlocks.push({
+                            top: block.offsetTop,
+                            bottom: block.offsetTop + block.offsetHeight
+                        });
+                    });
+                    
+                    const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
+                    
+                    const headerMarginMM = 10; 
+                    const footerMarginMM = 20;
+                    const contentHeightMM = pdfHeight - headerMarginMM - footerMarginMM;
+                    const pageHeightInPixels = (contentHeightMM * canvas.width) / pdfWidth;
+
+                    pdf.addPage();
+                    pdf.setFontSize(18);
+                    pdf.text(
+                        translations[currentLang].pdf_contacts_title, // Utilisation de l'objet translations
+                        15, headerMarginMM + 10
+                    );
+                    
+                    let yPos = headerMarginMM + 25;
+                    pdf.setFontSize(12);
+                    tocEntries.forEach(entry => {
+                        if (yPos > 270) {
+                            pdf.addPage();
+                            yPos = headerMarginMM + 10;
+                        }
+                        const indent = (entry.level - 2) * 10;
+                        const pageNum = Math.floor(entry.y / pageHeightInPixels) + 3;
+                        pdf.text(`${' '.repeat(indent * 2)}${entry.text}`, 15 + indent, yPos);
+                        pdf.text(`${pageNum}`, 190, yPos);
+                        yPos += (entry.level === 2 ? 8 : 7);
+                    });
+
+                    let currentCanvasY = 0;
+                    while (currentCanvasY < canvas.height) {
+                        pdf.addPage();
+                        let potentialCutY = currentCanvasY + pageHeightInPixels;
+                        let bestCutY = potentialCutY;
+
+                        for (const block of unbreakableBlocks) {
+                            if (block.top < potentialCutY && block.bottom > potentialCutY) {
+                                bestCutY = block.top - 10;
+                                break;
+                            }
+                        }
+                        
+                        const sliceHeight = Math.min(bestCutY - currentCanvasY, canvas.height - currentCanvasY);
+                        if (sliceHeight <= 0) break;
+
+                        const pageCanvas = document.createElement('canvas');
+                        pageCanvas.width = canvas.width;
+                        pageCanvas.height = sliceHeight;
+                        
+                        const pageCtx = pageCanvas.getContext('2d');
+                        pageCtx.drawImage(canvas, 0, currentCanvasY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+
+                        const pageImgData = pageCanvas.toDataURL('image/png');
+                        pdf.addImage(pageImgData, 'PNG', 0, headerMarginMM, pdfWidth, (sliceHeight * pdfWidth) / canvas.width);
+
+                        currentCanvasY += sliceHeight;
+                    }
+
+                    // AJOUT DE LA PAGE FINALE AVEC LES CONTACTS
+                    pdf.addPage();
+                    const commercialName = localStorage.getItem('commercialName') || '';
+                    const commercialEmail = localStorage.getItem('commercialEmail') || '';
+                    const commercialPhone = localStorage.getItem('commercialPhone') || '';
+                    const technicalName = localStorage.getItem('technicalName') || '';
+                    const technicalEmail = localStorage.getItem('technicalEmail') || '';
+                    const technicalPhone = localStorage.getItem('technicalPhone') || '';
+
+                    pdf.setFontSize(18);
+                    pdf.text(translations[currentLang].pdf_contacts_title, 15, headerMarginMM + 10);
+                    // Bloc Commercial
+                    pdf.setFontSize(12);
+                    pdf.text(translations[currentLang].pdf_commercial_contact_title, 15, headerMarginMM + 25);
+                    pdf.setFontSize(10);
+                    pdf.text(`Nom: ${commercialName}`, 15, headerMarginMM + 35);
+                    pdf.text(`Email: ${commercialEmail}`, 15, headerMarginMM + 42);
+                    pdf.text(`Tél: ${commercialPhone}`, 15, headerMarginMM + 49);
+                    // Bloc Technique
+                    pdf.setFontSize(12);
+                    pdf.text(translations[currentLang].pdf_technical_contact_title, pdfWidth / 2 + 10, headerMarginMM + 25);
+                    pdf.setFontSize(10);
+                    pdf.text(`Nom: ${technicalName}`, pdfWidth / 2 + 10, headerMarginMM + 35);
+                    pdf.text(`Email: ${technicalEmail}`, pdfWidth / 2 + 10, headerMarginMM + 42);
+                    pdf.text(`Tél: ${technicalPhone}`, pdfWidth / 2 + 10, headerMarginMM + 49);
+
+
+                    // Numéroter toutes les pages
+                    const pageCount = pdf.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        pdf.setPage(i);
+                        pdf.setFontSize(10);
+                        pdf.text(
+                            `Page ${i} / ${pageCount}`,
+                            pdf.internal.pageSize.getWidth() - 25,
+                            pdf.internal.pageSize.getHeight() - 10
+                        );
+                    }
+
+                    pdf.save(`presentation-ubitrack-${currentLang}.pdf`);
+
+                } catch (err) {
+                    console.error("Erreur lors de la génération du PDF:", err);
+                    alert("Erreur lors de la génération du PDF. Assurez-vous d'utiliser un serveur local et vérifiez la console pour plus de détails.");
+                } finally {
+                    if (printableClone && document.body.contains(printableClone)) {
+                        document.body.removeChild(printableClone);
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnText;
+                }
+            }
+            
+            // --- Initialisation au chargement de la page ---
+            const langSelect = document.getElementById('lang-select');
             const savedLang = localStorage.getItem('selectedLanguage') || 'fr';
             applyLanguage(savedLang);
 
-            langSelector.addEventListener('change', (e) => {
+            langSelect.addEventListener('change', (e) => {
                 applyLanguage(e.target.value);
                 localStorage.setItem('selectedLanguage', e.target.value);
             });
 
-            exportPdfBtn.addEventListener('click', () => {
-                preparePdfCustomElements();
-                window.print();
-            });
+            document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
 
-            // --- Logique de Personnalisation ---
             const clientNameInput = document.getElementById('clientName');
             clientNameInput.value = localStorage.getItem('clientName') || '';
             clientNameInput.addEventListener('input', () => {
@@ -730,3 +926,4 @@
 
 </body>
 </html>
+
