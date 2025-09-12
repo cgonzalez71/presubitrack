@@ -1,0 +1,23 @@
+{
+  "contacts": {
+    "commercial": [
+      {
+        "nom": "Jean Dupont",
+        "téléphone": "0123456789",
+        "email": "jean.dupont@email.com"
+      },
+      {
+        "nom": "Paul Bernard",
+        "téléphone": "0611223344",
+        "email": "paul.bernard@email.com"
+      }
+    ],
+    "technical": [
+      {
+        "nom": "Marie Martin",
+        "téléphone": "0987654321",
+        "email": "marie.martin@email.com"
+      }
+    ]
+  }
+}
