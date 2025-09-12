@@ -38,9 +38,9 @@
         header {
             background: var(--primary-color);
             color: #fff;
-            padding: 0.5rem 0; /* Un peu moins de padding vertical pour accommoder le sous-titre */
+            padding: 0.5rem 0;
             text-align: center;
-            position: relative; /* Pour positionner les logos */
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -52,7 +52,7 @@
         }
         header h1 {
             margin: 0;
-            font-size: 1.8em; /* Légèrement réduit pour l'équilibre */
+            font-size: 1.8em;
         }
         .header-subtitle {
             margin: 4px 0 0 0;
@@ -116,7 +116,7 @@
             margin: 0;
             min-width: 280px;
         }
-        .dropdown li a, .dropdown li button {
+        .dropdown li a {
             color: var(--text-color);
             padding: 12px 16px;
             text-decoration: none;
@@ -124,32 +124,38 @@
             text-align: left;
             font-size: 1em;
             font-weight: normal;
-            background: none;
-            border: none;
-            width: 100%;
-            cursor: pointer;
         }
-        .dropdown li a:hover, .dropdown li button:hover {
+        .dropdown li a:hover {
             background-color: #f1f1f1;
         }
         .nav-item:hover > a, .nav-control:hover > button {
             background-color: #e9ecef;
         }
-        .nav-item:hover .dropdown, .nav-control:hover .dropdown {
+        .nav-item:hover .dropdown {
             display: block;
         }
         .nav-controls {
             position: absolute;
             right: 20px;
             display: flex;
+            align-items: center;
         }
         .nav-control > button {
             padding: 15px;
         }
-        .nav-control .dropdown {
-            min-width: 120px;
-            left: auto;
-            right: 0;
+        #lang-select {
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 1em;
+            color: var(--primary-color);
+            background-color: transparent;
+            border: none;
+            padding: 10px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        #lang-select:focus {
+            outline: none;
         }
         #export-pdf-btn[disabled] {
             cursor: not-allowed;
@@ -268,12 +274,11 @@
                     <button id="export-pdf-btn" title="Export to PDF">📄 PDF</button>
                 </div>
                 <div class="nav-control">
-                    <button>🌐</button>
-                    <ul class="dropdown">
-                        <li><button onclick="switchLanguage('fr')">Français</button></li>
-                        <li><button onclick="switchLanguage('en')">English</button></li>
-                        <li><button onclick="switchLanguage('es')">Español</button></li>
-                    </ul>
+                    <select id="lang-select" title="Changer de langue">
+                        <option value="fr">Français</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
                 </div>
             </div>
         </nav>
@@ -611,6 +616,8 @@
             });
             document.documentElement.lang = lang;
             localStorage.setItem('userLanguage', lang);
+            // Mettre à jour la sélection de la liste déroulante
+            document.getElementById('lang-select').value = lang;
         }
 
         // Helper pour convertir une image en Base64
@@ -775,8 +782,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const langSelect = document.getElementById('lang-select');
+            
+            // Récupérer la langue et initialiser la page
             const savedLang = localStorage.getItem('userLanguage') || 'fr';
             switchLanguage(savedLang);
+
+            // Gérer le changement de langue
+            langSelect.addEventListener('change', (event) => {
+                switchLanguage(event.target.value);
+            });
+
+            // Attacher l'événement au bouton d'export
             document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
         });
     </script>
