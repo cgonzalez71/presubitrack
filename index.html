@@ -26,8 +26,6 @@
             background-color: var(--background-color);
             color: var(--text-color);
         }
-
-        /* --- Navigation --- */
         .navbar {
             background-color: var(--card-bg-color);
             padding: 10px 30px;
@@ -81,8 +79,6 @@
             background-color: #c01030;
             transform: translateY(-2px);
         }
-
-        /* --- Header --- */
         .header {
             background: var(--primary-color);
             color: white;
@@ -99,7 +95,6 @@
             margin-top: 10px;
             opacity: 0.9;
         }
-        
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -126,7 +121,6 @@
             color: #555;
             margin-bottom: 30px;
         }
-        
         .content-block {
             display: flex;
             flex-direction: column;
@@ -170,10 +164,8 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         .mobile-img {
-             max-width: 70px; /* TAILLE RÉDUITE DE 50% (140px -> 70px) */
+             max-width: 70px;
         }
-
-        /* Styles de la section Personnalisation */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -200,7 +192,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
@@ -215,8 +207,6 @@
             border-radius: 4px;
             background: white;
         }
-
-        /* Footer */
         .footer {
             text-align: center;
             padding: 30px 20px;
@@ -225,8 +215,6 @@
             color: white;
             border-top: 5px solid var(--secondary-color);
         }
-
-        /* --- Print Styles --- */
         @media print {
             @page {
                 size: A4 portrait;
@@ -315,7 +303,6 @@
             </div>
         </div>
     </div>
-
 
     <nav class="navbar">
         <div class="logo">
@@ -444,31 +431,15 @@
                 <div class="form-block">
                     <h3 data-lang-key="customization_commercial_title"></h3>
                     <div class="form-group">
-                        <label for="commercialName" data-lang-key="customization_contact_name"></label>
-                        <input type="text" id="commercialName">
-                    </div>
-                    <div class="form-group">
-                        <label for="commercialEmail" data-lang-key="customization_contact_email"></label>
-                        <input type="email" id="commercialEmail">
-                    </div>
-                    <div class="form-group">
-                        <label for="commercialPhone" data-lang-key="customization_contact_phone"></label>
-                        <input type="tel" id="commercialPhone">
+                        <label for="commercialContactSelect" data-lang-key="customization_contact_name"></label>
+                        <select id="commercialContactSelect"></select>
                     </div>
                 </div>
                 <div class="form-block">
                     <h3 data-lang-key="customization_technical_title"></h3>
                     <div class="form-group">
-                        <label for="technicalName" data-lang-key="customization_contact_name"></label>
-                        <input type="text" id="technicalName">
-                    </div>
-                    <div class="form-group">
-                        <label for="technicalEmail" data-lang-key="customization_contact_email"></label>
-                        <input type="email" id="technicalEmail">
-                    </div>
-                    <div class="form-group">
-                        <label for="technicalPhone" data-lang-key="customization_contact_phone"></label>
-                        <input type="tel" id="technicalPhone">
+                        <label for="technicalContactSelect" data-lang-key="customization_contact_name"></label>
+                        <select id="technicalContactSelect"></select>
                     </div>
                 </div>
             </div>
@@ -482,6 +453,19 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
+            const contactsData = {
+              "contacts": {
+                "commercial": [
+                  { "nom": "Jean Dupont", "téléphone": "0123456789", "email": "jean.dupont@email.com" },
+                  { "nom": "Paul Bernard", "téléphone": "0611223344", "email": "paul.bernard@email.com" }
+                ],
+                "technique": [
+                  { "nom": "Marie Martin", "téléphone": "0987654321", "email": "marie.martin@email.com" }
+                ]
+              }
+            };
+
             const translations = {
                 fr: {
                     pageTitle: "Présentation de la Solution UbiTrack",
@@ -516,14 +500,13 @@
                     customization_commercial_title: "Contact Commercial",
                     customization_technical_title: "Contact Technique",
                     customization_contact_name: "Nom",
-                    customization_contact_email: "Adresse Mail",
-                    customization_contact_phone: "Téléphone",
                     footer_text: "© 2025 UBI Solutions. Tous droits réservés.",
                     pdf_title: "Présentation UbiTrack",
                     pdf_author: "Auteur : CGZ",
                     pdf_contacts_title: "Contacts",
                     pdf_commercial_contact_title: "Contact Commercial",
-                    pdf_technical_contact_title: "Contact Technique"
+                    pdf_technical_contact_title: "Contact Technique",
+                    select_option_default: "-- Sélectionner --"
                 },
                 en: {
                     pageTitle: "UbiTrack Solution Presentation",
@@ -558,14 +541,13 @@
                     customization_commercial_title: "Commercial Contact",
                     customization_technical_title: "Technical Contact",
                     customization_contact_name: "Name",
-                    customization_contact_email: "Email Address",
-                    customization_contact_phone: "Phone",
                     footer_text: "© 2025 UBI Solutions. All rights reserved.",
                     pdf_title: "UbiTrack Presentation",
                     pdf_author: "Author: CGZ",
                     pdf_contacts_title: "Contacts",
                     pdf_commercial_contact_title: "Commercial Contact",
-                    pdf_technical_contact_title: "Technical Contact"
+                    pdf_technical_contact_title: "Technical Contact",
+                    select_option_default: "-- Select --"
                 },
                 es: {
                     pageTitle: "Presentación de la Solución UbiTrack",
@@ -600,14 +582,13 @@
                     customization_commercial_title: "Contacto Comercial",
                     customization_technical_title: "Contacto Técnico",
                     customization_contact_name: "Nombre",
-                    customization_contact_email: "Correo Electrónico",
-                    customization_contact_phone: "Teléfono",
                     footer_text: "© 2025 UBI Solutions. Todos los derechos reservados.",
                     pdf_title: "Presentación UbiTrack",
                     pdf_author: "Autor: CGZ",
                     pdf_contacts_title: "Contactos",
                     pdf_commercial_contact_title: "Contacto Comercial",
-                    pdf_technical_contact_title: "Contacto Técnico"
+                    pdf_technical_contact_title: "Contacto Técnico",
+                    select_option_default: "-- Seleccionar --"
                 }
             };
 
@@ -624,11 +605,12 @@
                     }
                 });
                 document.title = translations[lang].pageTitle;
+                populateContactDropdown('commercialContactSelect', 'commercial', lang);
+                populateContactDropdown('technicalContactSelect', 'technical', lang);
             }
             
             function preparePdfCustomElements() {
                 const lang = localStorage.getItem('selectedLanguage') || 'fr';
-                // Cover Page
                 document.querySelector('.cover-page h1').textContent = translations[lang].pdf_title;
                 document.querySelector('.cover-page p').textContent = translations[lang].pdf_author;
                 const clientName = localStorage.getItem('clientName') || '';
@@ -641,8 +623,6 @@
                 } else {
                     clientLogoCoverEl.style.display = 'none';
                 }
-
-                // Contacts Page
                 document.querySelector('.contacts-page h2').textContent = translations[lang].pdf_contacts_title;
                 document.querySelector('.contacts-page .contact-block:nth-child(1) h3').textContent = translations[lang].pdf_commercial_contact_title;
                 document.querySelector('.contacts-page .contact-block:nth-child(2) h3').textContent = translations[lang].pdf_technical_contact_title;
@@ -653,6 +633,28 @@
                 document.getElementById('pdfTechnicalName').textContent = `Nom: ${localStorage.getItem('technicalName') || ''}`;
                 document.getElementById('pdfTechnicalEmail').textContent = `Email: ${localStorage.getItem('technicalEmail') || ''}`;
                 document.getElementById('pdfTechnicalPhone').textContent = `Tél: ${localStorage.getItem('technicalPhone') || ''}`;
+            }
+
+            function populateContactDropdown(selectId, type, lang) {
+                const select = document.getElementById(selectId);
+                const savedName = localStorage.getItem(`${type}Name`);
+                select.innerHTML = ''; // Clear options
+
+                const defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.textContent = translations[lang].select_option_default;
+                select.appendChild(defaultOption);
+
+                contactsData.contacts[type].forEach(contact => {
+                    const option = document.createElement('option');
+                    option.value = contact.nom;
+                    option.textContent = contact.nom;
+                    select.appendChild(option);
+                });
+
+                if (savedName) {
+                    select.value = savedName;
+                }
             }
 
             // --- Initialisation ---
@@ -670,16 +672,10 @@
             });
 
             // --- Logique de Personnalisation ---
-            const inputsToSave = [
-                'clientName', 'commercialName', 'commercialEmail', 'commercialPhone',
-                'technicalName', 'technicalEmail', 'technicalPhone'
-            ];
-            inputsToSave.forEach(id => {
-                const input = document.getElementById(id);
-                input.value = localStorage.getItem(id) || '';
-                input.addEventListener('input', () => {
-                    localStorage.setItem(id, input.value);
-                });
+            const clientNameInput = document.getElementById('clientName');
+            clientNameInput.value = localStorage.getItem('clientName') || '';
+            clientNameInput.addEventListener('input', () => {
+                localStorage.setItem('clientName', clientNameInput.value);
             });
 
             const clientLogoInput = document.getElementById('clientLogo');
@@ -704,6 +700,26 @@
                      localStorage.removeItem('clientLogoB64');
                 }
             });
+
+            ['commercial', 'technical'].forEach(type => {
+                const select = document.getElementById(`${type}ContactSelect`);
+                select.addEventListener('change', (e) => {
+                    const selectedName = e.target.value;
+                    const contactList = contactsData.contacts[type];
+                    const selectedContact = contactList.find(c => c.nom === selectedName);
+
+                    if(selectedContact) {
+                        localStorage.setItem(`${type}Name`, selectedContact.nom);
+                        localStorage.setItem(`${type}Email`, selectedContact.email);
+                        localStorage.setItem(`${type}Phone`, selectedContact.téléphone);
+                    } else {
+                        localStorage.removeItem(`${type}Name`);
+                        localStorage.removeItem(`${type}Email`);
+                        localStorage.removeItem(`${type}Phone`);
+                    }
+                });
+            });
+
         });
     </script>
 
