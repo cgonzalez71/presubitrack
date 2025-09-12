@@ -259,6 +259,9 @@
             }
             .cover-page h1 { font-size: 2.5em; }
             .cover-page p { font-size: 1.2em; }
+            .content-item {
+                 page-break-inside: avoid;
+            }
             .contacts-page {
                 display: flex !important;
                 flex-direction: column;
@@ -267,9 +270,6 @@
             }
             .contacts-container { display: flex; gap: 20px; }
             .contact-block { flex: 1; }
-            .content-item {
-                 page-break-inside: avoid;
-            }
         }
         .cover-page, .contacts-page {
             display: none;
@@ -732,3 +732,4 @@
 
 </body>
 </html>
+
