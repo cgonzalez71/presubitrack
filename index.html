@@ -3,206 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Présentation de la Solution de Traçabilité RFID UbiTrack</title>
+    <title id="pageTitle">Présentation de la Solution UbiTrack</title>
     <link rel="icon" type="image/png" href="data/icone.png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
             --primary-color: #131E3A;
             --secondary-color: #E21B42;
-            --background-color: #f4f4f4;
+            --background-color: #f0f2f5;
             --text-color: #333;
             --card-bg-color: #fff;
-            --shadow-color: rgba(0,0,0,0.1);
+            --shadow-color: rgba(0,0,0,0.08);
         }
         html {
             scroll-behavior: smooth;
         }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 0;
             background-color: var(--background-color);
             color: var(--text-color);
-            padding-top: 110px;
         }
-        .header-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
+
+        /* --- Navigation --- */
+        .navbar {
             background-color: var(--card-bg-color);
-            box-shadow: 0 2px 5px var(--shadow-color);
-        }
-        header {
-            background: var(--primary-color);
-            color: #fff;
-            padding: 0.5rem 0;
-            text-align: center;
-            position: relative;
+            padding: 10px 30px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        .title-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.8em;
-        }
-        .header-subtitle {
-            margin: 4px 0 0 0;
-            font-size: 0.9em;
-            font-weight: 300;
-            opacity: 0.9;
-        }
-        .header-logo {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+        .navbar .logo img {
             height: 40px;
-            background-color: white;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+        #lang-select {
+            margin-left: 25px;
             padding: 5px 10px;
             border-radius: 5px;
-        }
-        .header-logo.left { left: 20px; }
-        .header-logo.right { right: 20px; }
-        .header-logo img {
-            height: 100%;
-            width: auto;
-        }
-        nav {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        .nav-item {
-            display: inline-block;
-            position: relative;
-        }
-        .nav-item > a, .nav-control > button {
-            display: block;
-            padding: 15px 25px;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-        .dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: white;
-            box-shadow: 0 8px 16px 0 var(--shadow-color);
-            z-index: 1;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            min-width: 280px;
-        }
-        .dropdown li a {
-            color: var(--text-color);
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            text-align: left;
-            font-size: 1em;
-            font-weight: normal;
-        }
-        .dropdown li a:hover {
-            background-color: #f1f1f1;
-        }
-        .nav-item:hover > a {
-            background-color: #e9ecef;
-        }
-        .nav-item:hover .dropdown {
-            display: block;
-        }
-        .nav-controls {
-            position: absolute;
-            right: 20px;
-            display: flex;
-            align-items: center;
-        }
-        .nav-control > button { padding: 15px; }
-        #lang-select {
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-            font-size: 1em;
-            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
             background-color: transparent;
-            border: none;
-            padding: 10px;
-            margin-left: 10px;
+            color: var(--primary-color);
+            font-weight: 500;
             cursor: pointer;
         }
-        #lang-select:focus { outline: none; }
-        #export-pdf-btn[disabled] {
-            cursor: not-allowed;
-            opacity: 0.5;
+        #export-pdf-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .lang-en, .lang-es { display: none; }
+        #export-pdf-btn:hover {
+            background-color: #c01030;
+            transform: translateY(-2px);
+        }
+
+        /* --- Header --- */
+        .header {
+            background: var(--primary-color);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.8em;
+            font-weight: 700;
+        }
+        .header p {
+            font-size: 1.2em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
         .container {
-            width: 80%;
             max-width: 1200px;
-            margin: auto;
-            overflow: hidden;
-            padding: 20px 0;
+            margin: 30px auto;
+            padding: 0 20px;
         }
         .section {
             background: var(--card-bg-color);
-            margin: 20px 0;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px var(--shadow-color);
+            padding: 40px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--shadow-color);
         }
         .section h2 {
-            color: var(--primary-color);
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        .section h3 {
             color: var(--secondary-color);
-            padding-top: 120px;
-            margin-top: -100px;
+            font-size: 2.2em;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+            display: inline-block;
         }
-        .screenshot {
-            text-align: center;
-            margin: 25px 0;
+        .section-intro {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 30px;
         }
-        .screenshot img {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-            vertical-align: top;
+        
+        .content-block {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-top: 30px;
         }
-        .webapp-img {
+        .content-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 30px;
+        }
+        .content-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        .content-text {
+            flex: 1;
+        }
+        .content-text h3 {
+            color: var(--primary-color);
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .content-text h3 i {
+            color: var(--secondary-color);
+        }
+        .content-images {
+            flex: 1;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        .content-images img {
             max-width: 100%;
             height: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         .mobile-img {
-            max-width: 140px;
-            height: auto;
+             max-width: 140px; /* Taille réduite pour les images mobiles */
         }
-        .back-to-top {
-            display: block;
-            text-align: right;
-            margin-top: 20px;
-            font-size: 0.9em;
-        }
+
+        /* Styles de la section Personnalisation */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -215,9 +186,11 @@
             border-radius: 8px;
             border-left: 4px solid var(--primary-color);
         }
-        .form-block h4 {
+        .form-block h3 {
             margin-top: 0;
             color: var(--primary-color);
+            font-size: 1.4em;
+            border: none;
         }
         .form-group {
             margin-bottom: 15px;
@@ -242,445 +215,259 @@
             border-radius: 4px;
             background: white;
         }
-        footer {
+
+        /* Footer */
+        .footer {
             text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-            color: #777;
+            padding: 30px 20px;
+            margin-top: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            border-top: 5px solid var(--secondary-color);
         }
+
+        /* --- Print Styles --- */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 1.5cm;
+            }
+            body {
+                background-color: #fff;
+            }
+            .navbar, .header, #export-pdf-btn, #lang-select, #customization, .footer {
+                display: none !important;
+            }
+            .container, .section {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 0;
+                margin-bottom: 20px;
+            }
+            .section {
+                page-break-before: always;
+            }
+            .section:first-of-type {
+                page-break-before: auto;
+            }
+            .cover-page {
+                display: flex !important;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                height: 100vh;
+                page-break-after: always;
+            }
+            .cover-page .ubi-logo-cover {
+                max-width: 250px;
+                margin-bottom: 30px;
+            }
+            .cover-page .client-logo-cover {
+                max-width: 200px;
+                max-height: 80px;
+                margin-top: 20px;
+            }
+            .cover-page h1 { font-size: 2.5em; }
+            .cover-page p { font-size: 1.2em; }
+            .contacts-page {
+                display: flex !important;
+                flex-direction: column;
+                padding-top: 1.5cm;
+                page-break-before: always;
+            }
+            .contacts-container { display: flex; gap: 20px; }
+            .contact-block { flex: 1; }
+            .content-item {
+                 page-break-inside: avoid;
+            }
+        }
+        .cover-page, .contacts-page {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="header-container">
-        <header>
-            <div class="header-logo left">
-                <img src="data/logo.png" alt="Logo UBI Solutions">
+    <div class="cover-page">
+        <img src="data/UbiSolutions.png" class="ubi-logo-cover" alt="UBI Solutions Logo">
+        <h1 data-lang-key="pdf_title"></h1>
+        <p data-lang-key="pdf_author"></p>
+        <img id="clientLogoCover" src="" class="client-logo-cover" alt="Client Logo" style="display:none;">
+        <p id="clientNameCover"></p>
+    </div>
+    <div class="contacts-page">
+        <h2 data-lang-key="pdf_contacts_title"></h2>
+        <div class="contacts-container">
+            <div class="contact-block">
+                <h3 data-lang-key="pdf_commercial_contact_title"></h3>
+                <p id="pdfCommercialName"></p>
+                <p id="pdfCommercialEmail"></p>
+                <p id="pdfCommercialPhone"></p>
             </div>
-            <div class="title-container">
-                <h1>
-                    <span class="lang-fr">Solution de Traçabilité RFID : UbiTrack</span>
-                    <span class="lang-en">RFID Tracking Solution: UbiTrack</span>
-                    <span class="lang-es">Solución de Trazabilidad RFID: UbiTrack</span>
-                </h1>
-                <p class="header-subtitle">
-                    <span class="lang-fr">Propulsée par UBI Solutions - Optimisez Votre Traçabilité en Temps Réel</span>
-                    <span class="lang-en">Powered by UBI Solutions - Optimize Your Real-Time Tracking</span>
-                    <span class="lang-es">Impulsado por UBI Solutions - Optimice Su Trazabilidad en Tiempo Real</span>
-                </p>
+            <div class="contact-block">
+                <h3 data-lang-key="pdf_technical_contact_title"></h3>
+                <p id="pdfTechnicalName"></p>
+                <p id="pdfTechnicalEmail"></p>
+                <p id="pdfTechnicalPhone"></p>
             </div>
-            <div class="header-logo right">
-                <img src="data/UbiSolutions.png" alt="Logo UBI Solutions">
-            </div>
-        </header>
-        <nav>
-            <div class="nav-item">
-                <a href="#webapp">
-                    <span class="lang-fr">Application Web</span>
-                    <span class="lang-en">Web Application</span>
-                    <span class="lang-es">Aplicación Web</span>
-                </a>
-                <ul class="dropdown">
-                    <li><a href="#auth-web"><span class="lang-fr">Authentification</span><span class="lang-en">Authentication</span><span class="lang-es">Autenticación</span></a></li>
-                    <li><a href="#gestion-web"><span class="lang-fr">Gestion & Configuration</span><span class="lang-en">Management & Configuration</span><span class="lang-es">Gestión y Configuración</span></a></li>
-                    <li><a href="#visu-web"><span class="lang-fr">Visualisation des Données</span><span class="lang-en">Data Visualization</span><span class="lang-es">Visualización de Datos</span></a></li>
-                </ul>
-            </div>
-            <div class="nav-item">
-                <a href="#mobileapp">
-                    <span class="lang-fr">Application Mobile</span>
-                    <span class="lang-en">Mobile Application</span>
-                    <span class="lang-es">Aplicación Móvil</span>
-                </a>
-                <ul class="dropdown">
-                    <li><a href="#acces-mobile"><span class="lang-fr">Accès & Droits Utilisateurs</span><span class="lang-en">Access & User Rights</span><span class="lang-es">Acceso y Derechos de Usuario</span></a></li>
-                    <li><a href="#metier-mobile"><span class="lang-fr">Fonctionnalités Métiers</span><span class="lang-en">Business Features</span><span class="lang-es">Funcionalidades de Negocio</span></a></li>
-                    <li><a href="#admin-mobile"><span class="lang-fr">Administration & Configuration</span><span class="lang-en">Administration & Configuration</span><span class="lang-es">Administración y Configuración</span></a></li>
-                </ul>
-            </div>
-            <div class="nav-controls">
-                <div class="nav-control">
-                    <button id="export-pdf-btn" title="Export to PDF">📄 PDF</button>
-                </div>
-                <div class="nav-control">
-                    <select id="lang-select" title="Changer de langue">
-                        <option value="fr">Français</option>
-                        <option value="en">English</option>
-                        <option value="es">Español</option>
-                    </select>
-                </div>
-            </div>
-        </nav>
+        </div>
     </div>
 
-    <div class="container" id="main-content">
+
+    <nav class="navbar">
+        <div class="logo">
+            <a href="#"><img src="data/UbiSolutions.png" alt="UBI Solutions Logo"></a>
+        </div>
+        <div class="nav-links">
+            <a href="#webapp" data-lang-key="nav_webapp"></a>
+            <a href="#mobileapp" data-lang-key="nav_mobileapp"></a>
+            <a href="#customization" data-lang-key="nav_customization"></a>
+            <select id="lang-select">
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+            </select>
+            <button id="export-pdf-btn" data-lang-key="nav_export_pdf"></button>
+        </div>
+    </nav>
+
+    <header class="header">
+        <h1 data-lang-key="header_title"></h1>
+        <p data-lang-key="header_subtitle"></p>
+    </header>
+
+    <div class="container">
 
         <div class="section" id="webapp">
-            <h2>
-                <span class="lang-fr">Partie 1 : Application Web UbiTrack</span>
-                <span class="lang-en">Part 1: UbiTrack Web Application</span>
-                <span class="lang-es">Parte 1: Aplicación Web UbiTrack</span>
-            </h2>
-            <p>
-                <span class="lang-fr">L'application web UbiTrack est l'interface centrale de gestion et de supervision des données de traçabilité. Elle permet de configurer le système, de gérer les référentiels et de visualiser l'ensemble des données métier collectées en temps réel.</span>
-                <span class="lang-en">The UbiTrack web application is the central interface for the management and supervision of traceability data. It allows for system configuration, repository management, and real-time visualization of all collected business data.</span>
-                <span class="lang-es">La aplicación web UbiTrack es la interfaz central de gestión y supervisión de los datos de trazabilidad. Permite configurar el sistema, gestionar los repositorios y visualizar el conjunto de los datos de negocio recopilados en tiempo real.</span>
-            </p>
-
-            <h3 id="auth-web">
-                <span class="lang-fr">Authentification</span>
-                <span class="lang-en">Authentication</span>
-                <span class="lang-es">Autenticación</span>
-            </h3>
-            <p>
-                <span class="lang-fr">La plateforme garantit un accès sécurisé via un écran de connexion standard (login/mot de passe). Elle offre également la flexibilité de s'interfacer avec des systèmes d'authentification centralisée d'entreprise comme Azure AD, Google ou d'autres annuaires LDAP.</span>
-                <span class="lang-en">The platform ensures secure access via a standard login screen (username/password). It also offers the flexibility to interface with enterprise single sign-on systems such as Azure AD, Google, or other LDAP directories.</span>
-                <span class="lang-es">La plataforma garantiza un acceso seguro a través de una pantalla de inicio de sesión estándar (usuario/contraseña). También ofrece la flexibilidad de interactuar con sistemas de autenticación centralizada empresarial como Azure AD, Google u otros directorios LDAP.</span>
-            </p>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/UbiTrack_Login.jpg" alt="Login screen" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 1 : Page d'authentification de l'application web.</span>
-                        <span class="lang-en">Figure 1: Web application authentication page.</span>
-                        <span class="lang-es">Figura 1: Página de autenticación de la aplicación web.</span>
-                    </figcaption>
-                </figure>
-            </div>
-
-            <h3 id="gestion-web">
-                <span class="lang-fr">Fonctionnalités Métier : Gestion et Configuration</span>
-                <span class="lang-en">Business Features: Management & Configuration</span>
-                <span class="lang-es">Funcionalidades de Negocio: Gestión y Configuración</span>
-            </h3>
-            <p>
-                <span class="lang-fr">Le back-office permet de gérer les référentiels essentiels au bon fonctionnement de la solution.</span>
-                <span class="lang-en">The back-office allows for managing the essential repositories for the solution's proper functioning.</span>
-                <span class="lang-es">El back-office permite gestionar los repositorios esenciales para el correcto funcionamiento de la solución.</span>
-            </p>
+            <h2 data-lang-key="webapp_title"></h2>
+            <p class="section-intro" data-lang-key="webapp_intro"></p>
             
-            <h4>
-                <span class="lang-fr">Navigation dans l'application</span>
-                <span class="lang-en">Application Navigation</span>
-                <span class="lang-es">Navegación en la aplicación</span>
-            </h4>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/02-UBITrack_Objets.png" alt="Menu Objets" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 2 : Menu de gestion des "Objets" (référentiel).</span>
-                        <span class="lang-en">Figure 2: "Objects" management menu (repository).</span>
-                        <span class="lang-es">Figura 2: Menú de gestión de "Objetos" (repositorio).</span>
-                    </figcaption>
-                </figure>
+            <div class="content-block">
+                <div class="content-item">
+                    <div class="content-text">
+                        <h3 data-lang-key="webapp_auth_title"><i class="fas fa-lock"></i> </h3>
+                        <p data-lang-key="webapp_auth_desc"></p>
+                    </div>
+                    <div class="content-images">
+                         <img src="data/UbiTrack_Login.jpg" alt="Login Screen">
+                    </div>
+                </div>
+                <div class="content-item">
+                    <div class="content-text">
+                        <h3 data-lang-key="webapp_config_title"><i class="fas fa-cogs"></i> </h3>
+                        <p data-lang-key="webapp_config_desc"></p>
+                    </div>
+                    <div class="content-images">
+                         <img src="data/04-UBITrack_TypesItems.png" alt="Item Types Management">
+                         <img src="data/05-UBITrack_Localisations.png" alt="Locations Management">
+                    </div>
+                </div>
+                 <div class="content-item">
+                    <div class="content-text">
+                        <h3 data-lang-key="webapp_data_vis_title"><i class="fas fa-chart-bar"></i> </h3>
+                        <p data-lang-key="webapp_data_vis_desc"></p>
+                    </div>
+                    <div class="content-images">
+                         <img src="data/06-UBITrack_ItemsView.png" alt="Items View">
+                         <img src="data/08-UBITrack_StockView.png" alt="Stock View">
+                    </div>
+                </div>
             </div>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/03-UBITrack_Vues.png" alt="Menu Vues" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 3 : Menu de consultation des "Vues" (données).</span>
-                        <span class="lang-en">Figure 3: "Views" consultation menu (data).</span>
-                        <span class="lang-es">Figura 3: Menú de consulta de "Vistas" (datos).</span>
-                    </figcaption>
-                </figure>
-            </div>
-
-            <h4>
-                <span class="lang-fr">Gestion des Types d'Items et des Localisations</span>
-                <span class="lang-en">Item Type and Location Management</span>
-                <span class="lang-es">Gestión de Tipos de Artículos y Ubicaciones</span>
-            </h4>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/04-UBITrack_TypesItems.png" alt="Gestion des types d'items" style="width: 49%; display: inline-block;" class="webapp-img">
-                    <img src="data/05-UBITrack_Localisations.png" alt="Gestion des localisations" style="width: 49%; display: inline-block;" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 4 & 5 : Interfaces de gestion des types d'items et des localisations.</span>
-                        <span class="lang-en">Figures 4 & 5: Item type and location management interfaces.</span>
-                        <span class="lang-es">Figuras 4 y 5: Interfaces de gestión de tipos de artículos y ubicaciones.</span>
-                    </figcaption>
-                </figure>
-            </div>
-            
-            <h3 id="visu-web">
-                <span class="lang-fr">Fonctionnalités Métier : Visualisation des Données</span>
-                <span class="lang-en">Business Features: Data Visualization</span>
-                <span class="lang-es">Funcionalidades de Negocio: Visualización de Datos</span>
-            </h3>
-            <p>
-                <span class="lang-fr">UbiTrack offre plusieurs niveaux de vues pour consulter les données, toutes équipées de filtres avancés et de fonctionnalités d'export pour une analyse approfondie.</span>
-                <span class="lang-en">UbiTrack offers several levels of views for consulting data, all equipped with advanced filters and export functionalities for in-depth analysis.</span>
-                <span class="lang-es">UbiTrack ofrece varios niveles de vistas para consultar datos, todos equipados con filtros avanzados y funcionalidades de exportación para un análisis en profundidad.</span>
-            </p>
-
-            <h4>
-                <span class="lang-fr">Statut, Historique et Vue des Items</span>
-                <span class="lang-en">Item Status, History, and View</span>
-                <span class="lang-es">Estado, Historial y Vista de Artículos</span>
-            </h4>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/06-UBITrack_ItemsView.png" alt="Visualisation des items" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 6 : Vue listant les items et leur statut.</span>
-                        <span class="lang-en">Figure 6: View listing items and their status.</span>
-                        <span class="lang-es">Figura 6: Vista que lista los artículos y su estado.</span>
-                    </figcaption>
-                </figure>
-            </div>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/07-UBITrack_ItemsHistoryView.png" alt="Historique des items" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 7 : Vue de l'historique détaillé des mouvements.</span>
-                        <span class="lang-en">Figure 7: Detailed movement history view.</span>
-                        <span class="lang-es">Figura 7: Vista del historial detallado de movimientos.</span>
-                    </figcaption>
-                </figure>
-            </div>
-
-            <h4>
-                <span class="lang-fr">Visualisation des Stocks (3 niveaux)</span>
-                <span class="lang-en">Stock Visualization (3 levels)</span>
-                <span class="lang-es">Visualización de Stocks (3 niveles)</span>
-            </h4>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/08-UBITrack_StockView.png" alt="Vue globale des stocks" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 8 : Vue synthétique des stocks par site.</span>
-                        <span class="lang-en">Figure 8: Synthetic view of stocks by site.</span>
-                        <span class="lang-es">Figura 8: Vista sintética de los stocks por sitio.</span>
-                    </figcaption>
-                </figure>
-            </div>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/09-UBITrack_StockDetailView.png" alt="Détail des stocks par type" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 9 : Vue détaillée des stocks par type d'item.</span>
-                        <span class="lang-en">Figure 9: Detailed view of stocks by item type.</span>
-                        <span class="lang-es">Figura 9: Vista detallada de los stocks por tipo de artículo.</span>
-                    </figcaption>
-                </figure>
-            </div>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/10-UBITrack_StockDetailSiteTypeView.png" alt="Détail des items en stock" class="webapp-img">
-                    <figcaption>
-                        <span class="lang-fr">Figure 10 : Liste des items individuels en stock pour un type donné.</span>
-                        <span class="lang-en">Figure 10: List of individual items in stock for a given type.</span>
-                        <span class="lang-es">Figura 10: Lista de artículos individuales en stock para un tipo dado.</span>
-                    </figcaption>
-                </figure>
-            </div>
-            <a href="#" class="back-to-top">
-                <span class="lang-fr">Retour en haut de page ↑</span>
-                <span class="lang-en">Back to top ↑</span>
-                <span class="lang-es">Volver arriba ↑</span>
-            </a>
         </div>
 
         <div class="section" id="mobileapp">
-            <h2>
-                <span class="lang-fr">Partie 2 : Application Mobile</span>
-                <span class="lang-en">Part 2: Mobile Application</span>
-                <span class="lang-es">Parte 2: Aplicación Móvil</span>
-            </h2>
-            <p>
-                <span class="lang-fr">L'application mobile, conçue pour les terminaux PDA, est l'outil de terrain qui permet aux opérateurs d'interagir directement avec les tags RFID pour réaliser les opérations quotidiennes.</span>
-                <span class="lang-en">The mobile application, designed for PDA terminals, is the field tool that allows operators to interact directly with RFID tags to perform daily operations.</span>
-                <span class="lang-es">La aplicación móvil, diseñada para terminales PDA, es la herramienta de campo que permite a los operadores interactuar directamente con las etiquetas RFID para realizar las operaciones diarias.</span>
-            </p>
+            <h2 data-lang-key="mobileapp_title"></h2>
+            <p class="section-intro" data-lang-key="mobileapp_intro"></p>
             
-            <h3 id="acces-mobile">
-                <span class="lang-fr">Accès et Droits Utilisateurs</span>
-                <span class="lang-en">Access & User Rights</span>
-                <span class="lang-es">Acceso y Derechos de Usuario</span>
-            </h3>
-            <p>
-                <span class="lang-fr">L'accès à l'application est sécurisé par un login et mot de passe. Les fonctionnalités disponibles dans le menu s'adaptent automatiquement en fonction des droits configurés pour chaque profil utilisateur.</span>
-                <span class="lang-en">Access to the application is secured by a login and password. The functionalities available in the menu automatically adapt according to the rights configured for each user profile.</span>
-                <span class="lang-es">El acceso a la aplicación está asegurado mediante un nombre de usuario y contraseña. Las funcionalidades disponibles en el menú se adaptan automáticamente según los derechos configurados para cada perfil de usuario.</span>
-            </p>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/21-UBITrack_AppLogin.png" alt="Écran de connexion de l'app mobile" class="mobile-img" style="display: inline-block; margin-right: 15px;">
-                    <img src="data/11-UBITrack_AppMenu.png" alt="Menu mobile profil 2" class="mobile-img" style="display: inline-block;">
-                    <figcaption>
-                        <span class="lang-fr">Figure 11 & 12 : Écran de connexion et exemple de menu principal.</span>
-                        <span class="lang-en">Figures 11 & 12: Login screen and example of main menu.</span>
-                        <span class="lang-es">Figuras 11 y 12: Pantalla de inicio de sesión y ejemplo de menú principal.</span>
-                    </figcaption>
-                </figure>
+             <div class="content-block">
+                <div class="content-item">
+                    <div class="content-text">
+                        <h3 data-lang-key="mobileapp_access_title"><i class="fas fa-user-shield"></i> </h3>
+                        <p data-lang-key="mobileapp_access_desc"></p>
+                    </div>
+                    <div class="content-images">
+                         <img src="data/21-UBITrack_AppLogin.png" class="mobile-img" alt="Mobile Login">
+                         <img src="data/11-UBITrack_AppMenu.png" class="mobile-img" alt="Mobile Menu">
+                    </div>
+                </div>
+                <div class="content-item">
+                    <div class="content-text">
+                        <h3 data-lang-key="mobileapp_features_title"><i class="fas fa-tasks"></i> </h3>
+                        <p data-lang-key="mobileapp_features_desc"></p>
+                    </div>
+                    <div class="content-images">
+                         <img src="data/14-UBITrack_AppAsso.png" class="mobile-img" alt="Item Association">
+                         <img src="data/18-UBITrack_AppInventory.png" class="mobile-img" alt="Inventory">
+                    </div>
+                </div>
+                 <div class="content-item">
+                    <div class="content-text">
+                        <h3 data-lang-key="mobileapp_geiger_title"><i class="fas fa-search-location"></i> </h3>
+                        <p data-lang-key="mobileapp_geiger_desc"></p>
+                    </div>
+                    <div class="content-images">
+                         <img src="data/15-UBITrack_AppRechercheRed.png" class="mobile-img" alt="Search Far">
+                         <img src="data/17-UBITrack_AppRechercheGreen.png" class="mobile-img" alt="Search Close">
+                    </div>
+                </div>
+                 <div class="content-item">
+                    <div class="content-text">
+                        <h3 data-lang-key="mobileapp_admin_title"><i class="fas fa-sliders-h"></i> </h3>
+                        <p data-lang-key="mobileapp_admin_desc"></p>
+                    </div>
+                    <div class="content-images">
+                         <img src="data/24-UBITrack_AppConfig.png" class="mobile-img" alt="Configuration">
+                         <img src="data/25-UBITrack_AppMaj.png" class="mobile-img" alt="Application Update">
+                    </div>
+                </div>
             </div>
-
-            <h3 id="metier-mobile">
-                <span class="lang-fr">Fonctionnalités Métiers sur Mobile</span>
-                <span class="lang-en">Business Features on Mobile</span>
-                <span class="lang-es">Funcionalidades de Negocio en Móvil</span>
-            </h3>
-            
-            <h4>
-                <span class="lang-fr">Association et Information Item</span>
-                <span class="lang-en">Item Association and Information</span>
-                <span class="lang-es">Asociación e Información del Artículo</span>
-            </h4>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/14-UBITrack_AppAsso.png" alt="Association Item/Tag" class="mobile-img" style="display: inline-block; margin-right: 15px;">
-                    <img src="data/12-UBITrack_AppItemInfo.png" alt="Information Item" class="mobile-img" style="display: inline-block;">
-                    <figcaption>
-                        <span class="lang-fr">Figure 13 & 14 : Association d'un tag et consultation des informations d'un item.</span>
-                        <span class="lang-en">Figures 13 & 14: Tag association and item information lookup.</span>
-                        <span class="lang-es">Figuras 13 y 14: Asociación de una etiqueta y consulta de la información de un artículo.</span>
-                    </figcaption>
-                </figure>
-            </div>
-            
-            <h4>
-                <span class="lang-fr">Recherche Item (Compteur Geiger)</span>
-                <span class="lang-en">Item Search (Geiger Counter)</span>
-                <span class="lang-es">Búsqueda de Artículo (Contador Geiger)</span>
-            </h4>
-            <p>
-                <span class="lang-fr">Cette fonction aide l'opérateur à localiser physiquement un article. L'application affiche un indicateur visuel de proximité qui change de couleur à mesure que l'opérateur se rapproche de l'item recherché.</span>
-                <span class="lang-en">This function helps the operator to physically locate a specific item. The application displays a visual proximity indicator that changes color as the operator gets closer to the searched item.</span>
-                <span class="lang-es">Esta función ayuda al operador a localizar físicamente un artículo. La aplicación muestra un indicador visual de proximidad que cambia de color a medida que el operador se acerca al artículo buscado.</span>
-            </p>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/15-UBITrack_AppRechercheRed.png" alt="Recherche item - Loin" class="mobile-img" style="display: inline-block; margin: 0 5px;">
-                    <img src="data/16-UBITrack_AppRechercheYellow.png" alt="Recherche item - Moyen" class="mobile-img" style="display: inline-block; margin: 0 5px;">
-                    <img src="data/17-UBITrack_AppRechercheGreen.png" alt="Recherche item - Proche" class="mobile-img" style="display: inline-block; margin: 0 5px;">
-                    <figcaption>
-                        <span class="lang-fr">Figure 15 : Indicateur de proximité (Rouge = loin, Jaune = proche, Vert = très proche).</span>
-                        <span class="lang-en">Figure 15: Proximity indicator (Red = far, Yellow = close, Green = very close).</span>
-                        <span class="lang-es">Figura 15: Indicador de proximidad (Rojo = lejos, Amarillo = cerca, Verde = muy cerca).</span>
-                    </figcaption>
-                </figure>
-            </div>
-
-            <h4>
-                <span class="lang-fr">Inventaire et Mouvements de Stock</span>
-                <span class="lang-en">Inventory and Stock Movements</span>
-                <span class="lang-es">Inventario y Movimientos de Stock</span>
-            </h4>
-            <p>
-                <span class="lang-fr">L'application permet de réaliser des inventaires rapides et d'enregistrer les entrées et sorties de stock en scannant les articles concernés.</span>
-                <span class="lang-en">The application allows for quick inventories and recording stock entries and exits by scanning the relevant items.</span>
-                <span class="lang-es">La aplicación permite realizar inventarios rápidos y registrar las entradas y salidas de stock escaneando los artículos correspondientes.</span>
-            </p>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/18-UBITrack_AppInventory.png" alt="Fonction d'inventaire" class="mobile-img" style="display: inline-block; margin-right: 15px;">
-                    <img src="data/19-UBITrack_AppIn.png" alt="Mouvement d'entrée" class="mobile-img" style="display: inline-block;">
-                    <figcaption>
-                        <span class="lang-fr">Figure 16 & 17 : Fonctions d'inventaire et de mouvement de stock (Entrée).</span>
-                        <span class="lang-en">Figures 16 & 17: Inventory and stock movement (Entry) functions.</span>
-                        <span class="lang-es">Figuras 16 y 17: Funciones de inventario y movimiento de stock (Entrada).</span>
-                    </figcaption>
-                </figure>
-            </div>
-            
-            <h3 id="admin-mobile">
-                <span class="lang-fr">Administration et Configuration (Accès Sécurisé)</span>
-                <span class="lang-en">Administration & Configuration (Secured Access)</span>
-                <span class="lang-es">Administración y Configuración (Acceso Seguro)</span>
-            </h3>
-            <p>
-                <span class="lang-fr">Les fonctions avancées sont protégées par un mot de passe administrateur. Cela inclut la configuration des paramètres techniques, la mise à jour de l'application et l'utilisation d'outils de déploiement.</span>
-                <span class="lang-en">Advanced functions are protected by an administrator password. This includes configuring technical parameters, updating the application, and using deployment tools.</span>
-                <span class="lang-es">Las funciones avanzadas están protegidas por una contraseña de administrador. Esto incluye la configuración de parámetros técnicos, la actualización de la aplicación y el uso de herramientas de despliegue.</span>
-            </p>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/23-UBITrack_AppAdminPasswd.png" alt="Mot de passe admin" class="mobile-img" style="display: inline-block; margin: 0 5px;">
-                    <img src="data/24-UBITrack_AppConfig.png" alt="Configuration" class="mobile-img" style="display: inline-block; margin: 0 5px;">
-                    <figcaption>
-                        <span class="lang-fr">Figure 18 & 19 : Accès par mot de passe admin et écran de configuration (localisation, puissances RFID).</span>
-                        <span class="lang-en">Figures 18 & 19: Admin password access and configuration screen (location, RFID power).</span>
-                        <span class="lang-es">Figuras 18 y 19: Acceso por contraseña de administrador y pantalla de configuración (ubicación, potencias RFID).</span>
-                    </figcaption>
-                </figure>
-            </div>
-            <div class="screenshot">
-                <figure>
-                    <img src="data/25-UBITrack_AppMaj.png" alt="Mise à jour application" class="mobile-img" style="display: inline-block; margin-right: 15px;">
-                    <img src="data/26-UBITrack_AppStageNow.png" alt="Verrouillage via StageNow" class="mobile-img" style="display: inline-block;">
-                    <figcaption>
-                        <span class="lang-fr">Figure 20 & 21 : Interface de mise à jour simplifiée et outil de verrouillage du PDA (StageNow).</span>
-                        <span class="lang-en">Figures 20 & 21: Simplified update interface and PDA locking tool (StageNow).</span>
-                        <span class="lang-es">Figuras 20 y 21: Interfaz de actualización simplificada y herramienta de bloqueo de PDA (StageNow).</span>
-                    </figcaption>
-                </figure>
-            </div>
-
-            <a href="#" class="back-to-top">
-                <span class="lang-fr">Retour en haut de page ↑</span>
-                <span class="lang-en">Back to top ↑</span>
-                <span class="lang-es">Volver arriba ↑</span>
-            </a>
         </div>
-        
+
         <div class="section" id="customization">
-            <h2>
-                <span class="lang-fr">Personnalisation du Rapport</span>
-                <span class="lang-en">Report Customization</span>
-                <span class="lang-es">Personalización del Informe</span>
-            </h2>
+            <h2 data-lang-key="customization_title"></h2>
             <div class="form-grid">
                 <div class="form-block">
-                    <h4>
-                        <span class="lang-fr">Informations Client</span>
-                        <span class="lang-en">Client Information</span>
-                        <span class="lang-es">Información del Cliente</span>
-                    </h4>
+                    <h3 data-lang-key="customization_client_title"></h3>
                     <div class="form-group">
-                        <label for="clientName"><span class="lang-fr">Nom du Client</span><span class="lang-en">Client Name</span><span class="lang-es">Nombre del Cliente</span></label>
+                        <label for="clientName" data-lang-key="customization_client_name"></label>
                         <input type="text" id="clientName">
                     </div>
                     <div class="form-group">
-                        <label for="clientLogo"><span class="lang-fr">Logo du Client (PNG, JPG)</span><span class="lang-en">Client Logo (PNG, JPG)</span><span class="lang-es">Logo del Cliente (PNG, JPG)</span></label>
+                        <label for="clientLogo" data-lang-key="customization_client_logo"></label>
                         <input type="file" id="clientLogo" accept="image/png, image/jpeg">
                         <img id="logo-preview" src="" alt="Aperçu du logo" style="display: none;">
                     </div>
                 </div>
                 <div class="form-block">
-                    <h4>
-                        <span class="lang-fr">Contact Commercial</span>
-                        <span class="lang-en">Commercial Contact</span>
-                        <span class="lang-es">Contacto Comercial</span>
-                    </h4>
+                    <h3 data-lang-key="customization_commercial_title"></h3>
                     <div class="form-group">
-                        <label for="commercialName"><span class="lang-fr">Nom</span><span class="lang-en">Name</span><span class="lang-es">Nombre</span></label>
+                        <label for="commercialName" data-lang-key="customization_contact_name"></label>
                         <input type="text" id="commercialName">
                     </div>
                     <div class="form-group">
-                        <label for="commercialEmail"><span class="lang-fr">Adresse Mail</span><span class="lang-en">Email Address</span><span class="lang-es">Correo Electrónico</span></label>
+                        <label for="commercialEmail" data-lang-key="customization_contact_email"></label>
                         <input type="email" id="commercialEmail">
                     </div>
                     <div class="form-group">
-                        <label for="commercialPhone"><span class="lang-fr">Téléphone</span><span class="lang-en">Phone</span><span class="lang-es">Teléfono</span></label>
+                        <label for="commercialPhone" data-lang-key="customization_contact_phone"></label>
                         <input type="tel" id="commercialPhone">
                     </div>
                 </div>
                 <div class="form-block">
-                    <h4>
-                        <span class="lang-fr">Contact Technique</span>
-                        <span class="lang-en">Technical Contact</span>
-                        <span class="lang-es">Contacto Técnico</span>
-                    </h4>
+                    <h3 data-lang-key="customization_technical_title"></h3>
                     <div class="form-group">
-                        <label for="technicalName"><span class="lang-fr">Nom</span><span class="lang-en">Name</span><span class="lang-es">Nombre</span></label>
+                        <label for="technicalName" data-lang-key="customization_contact_name"></label>
                         <input type="text" id="technicalName">
                     </div>
                     <div class="form-group">
-                        <label for="technicalEmail"><span class="lang-fr">Adresse Mail</span><span class="lang-en">Email Address</span><span class="lang-es">Correo Electrónico</span></label>
+                        <label for="technicalEmail" data-lang-key="customization_contact_email"></label>
                         <input type="email" id="technicalEmail">
                     </div>
                     <div class="form-group">
-                        <label for="technicalPhone"><span class="lang-fr">Téléphone</span><span class="lang-en">Phone</span><span class="lang-es">Teléfono</span></label>
+                        <label for="technicalPhone" data-lang-key="customization_contact_phone"></label>
                         <input type="tel" id="technicalPhone">
                     </div>
                 </div>
@@ -689,232 +476,200 @@
 
     </div>
 
-    <footer>
-        <p>
-            <span class="lang-fr">© 2025 UBI Solutions. Tous droits réservés.</span>
-            <span class="lang-en">© 2025 UBI Solutions. All rights reserved.</span>
-            <span class="lang-es">© 2025 UBI Solutions. Todos los derechos reservados.</span>
-        </p>
+    <footer class="footer">
+        <p data-lang-key="footer_text"></p>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
     <script>
-        function switchLanguage(lang) {
-            document.querySelectorAll('.lang-fr, .lang-en, .lang-es').forEach(el => {
-                el.style.display = 'none';
-            });
-            document.querySelectorAll('.lang-' + lang).forEach(el => {
-                el.style.display = 'inline';
-            });
-            document.documentElement.lang = lang;
-            localStorage.setItem('userLanguage', lang);
-            document.getElementById('lang-select').value = lang;
-        }
-
-        async function imageToBase64(url_or_file) {
-            if (typeof url_or_file === 'string') {
-                const response = await fetch(url_or_file);
-                const blob = await response.blob();
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                });
-            } else {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(url_or_file);
-                });
-            }
-        }
-
-        async function exportToPDF() {
-            const btn = document.getElementById('export-pdf-btn');
-            const originalBtnText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '...';
-
-            const { jsPDF } = window.jspdf;
-            const contentToExport = document.getElementById('main-content');
-            const currentLang = document.documentElement.lang || 'fr';
-            let printableClone = null;
-
-            try {
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                
-                const logoBase64 = await imageToBase64('data/UbiSolutions.png');
-                pdf.addImage(logoBase64, 'PNG', 15, 15, 60, 15);
-                pdf.setFontSize(30);
-                pdf.text("Présentation UbiTrack", pdfWidth / 2, pdfHeight / 2 - 10, { align: 'center' });
-                pdf.setFontSize(16);
-                pdf.text("Auteur : CGZ", pdfWidth / 2, pdfHeight / 2, { align: 'center' });
-
-                const clientName = document.getElementById('clientName').value;
-                const clientLogoFile = document.getElementById('clientLogo').files[0];
-                if (clientName) {
-                    pdf.setFontSize(20);
-                    pdf.text(clientName, pdfWidth / 2, pdfHeight / 2 + 20, { align: 'center' });
-                }
-                if (clientLogoFile) {
-                    const clientLogoBase64 = await imageToBase64(clientLogoFile);
-                    pdf.addImage(clientLogoBase64, 'PNG', pdfWidth / 2 - 25, pdfHeight / 2 + 30, 50, 25, undefined, 'FAST');
-                }
-                
-                printableClone = contentToExport.cloneNode(true);
-                document.body.appendChild(printableClone);
-
-                printableClone.querySelectorAll('.lang-fr, .lang-en, .lang-es').forEach(el => {
-                    if (!el.classList.contains('lang-' + currentLang)) {
-                        el.style.display = 'none';
-                    } else {
-                        el.style.display = 'inline';
-                    }
-                });
-                printableClone.querySelectorAll('.back-to-top, #customization').forEach(el => el.style.display = 'none');
-                
-                const tocEntries = [];
-                const unbreakableBlocks = []; 
-                printableClone.querySelectorAll('h2, h3, h4').forEach(header => {
-                    const titleSpan = header.querySelector(`.lang-${currentLang}`);
-                    if (titleSpan && header.closest('#customization') === null) {
-                        tocEntries.push({
-                            text: titleSpan.innerText,
-                            level: parseInt(header.tagName.substring(1), 10),
-                            y: header.offsetTop
-                        });
-                    }
-                });
-                
-                printableClone.querySelectorAll('.screenshot').forEach(block => {
-                    unbreakableBlocks.push({
-                        top: block.offsetTop,
-                        bottom: block.offsetTop + block.offsetHeight
-                    });
-                });
-                
-                const canvas = await html2canvas(printableClone, { scale: 2, useCORS: true });
-                
-                const headerMarginMM = 10; 
-                const footerMarginMM = 20;
-                const contentHeightMM = pdfHeight - headerMarginMM - footerMarginMM;
-                const pageHeightInPixels = (contentHeightMM * canvas.width) / pdfWidth;
-
-                pdf.addPage();
-                pdf.setFontSize(18);
-                pdf.text(
-                    currentLang === 'fr' ? 'Table des Matières' : (currentLang === 'en' ? 'Table of Contents' : 'Tabla de Contenidos'),
-                    15, headerMarginMM + 10
-                );
-                
-                let yPos = headerMarginMM + 25;
-                pdf.setFontSize(12);
-                tocEntries.forEach(entry => {
-                    if (yPos > 270) {
-                        pdf.addPage();
-                        yPos = headerMarginMM + 10;
-                    }
-                    const indent = (entry.level - 2) * 10;
-                    const pageNum = Math.floor(entry.y / pageHeightInPixels) + 3;
-                    pdf.text(`${' '.repeat(indent * 2)}${entry.text}`, 15 + indent, yPos);
-                    pdf.text(`${pageNum}`, 190, yPos);
-                    yPos += (entry.level === 2 ? 8 : 7);
-                });
-
-                let currentCanvasY = 0;
-                while (currentCanvasY < canvas.height) {
-                    pdf.addPage();
-                    let potentialCutY = currentCanvasY + pageHeightInPixels;
-                    let bestCutY = potentialCutY;
-
-                    for (const block of unbreakableBlocks) {
-                        if (block.top < potentialCutY && block.bottom > potentialCutY) {
-                            bestCutY = block.top - 10;
-                            break;
-                        }
-                    }
-                    
-                    const sliceHeight = Math.min(bestCutY - currentCanvasY, canvas.height - currentCanvasY);
-                    if (sliceHeight <= 0) break;
-
-                    const pageCanvas = document.createElement('canvas');
-                    pageCanvas.width = canvas.width;
-                    pageCanvas.height = sliceHeight;
-                    
-                    const pageCtx = pageCanvas.getContext('2d');
-                    pageCtx.drawImage(canvas, 0, currentCanvasY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-
-                    const pageImgData = pageCanvas.toDataURL('image/png');
-                    pdf.addImage(pageImgData, 'PNG', 0, headerMarginMM, pdfWidth, (sliceHeight * pdfWidth) / canvas.width);
-
-                    currentCanvasY += sliceHeight;
-                }
-
-                pdf.addPage();
-                const commercialName = document.getElementById('commercialName').value;
-                const commercialEmail = document.getElementById('commercialEmail').value;
-                const commercialPhone = document.getElementById('commercialPhone').value;
-                const technicalName = document.getElementById('technicalName').value;
-                const technicalEmail = document.getElementById('technicalEmail').value;
-                const technicalPhone = document.getElementById('technicalPhone').value;
-
-                pdf.setFontSize(18);
-                pdf.text("Contacts", 15, headerMarginMM + 10);
-                pdf.setFontSize(12);
-                pdf.text("Contact Commercial", 15, headerMarginMM + 25);
-                pdf.setFontSize(10);
-                pdf.text(`Nom : ${commercialName}`, 15, headerMarginMM + 35);
-                pdf.text(`Email : ${commercialEmail}`, 15, headerMarginMM + 42);
-                pdf.text(`Téléphone : ${commercialPhone}`, 15, headerMarginMM + 49);
-                pdf.setFontSize(12);
-                pdf.text("Contact Technique", pdfWidth / 2 + 10, headerMarginMM + 25);
-                pdf.setFontSize(10);
-                pdf.text(`Nom : ${technicalName}`, pdfWidth / 2 + 10, headerMarginMM + 35);
-                pdf.text(`Email : ${technicalEmail}`, pdfWidth / 2 + 10, headerMarginMM + 42);
-                pdf.text(`Téléphone : ${technicalPhone}`, pdfWidth / 2 + 10, headerMarginMM + 49);
-
-                const pageCount = pdf.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    pdf.setPage(i);
-                    pdf.setFontSize(10);
-                    pdf.text(
-                        `Page ${i} / ${pageCount}`,
-                        pdf.internal.pageSize.getWidth() - 25,
-                        pdf.internal.pageSize.getHeight() - 10
-                    );
-                }
-
-                pdf.save(`presentation-ubitrack-${currentLang}.pdf`);
-
-            } catch (err) {
-                console.error("Erreur lors de la génération du PDF:", err);
-                alert("Erreur lors de la génération du PDF. Assurez-vous d'utiliser un serveur local et vérifiez la console pour plus de détails.");
-            } finally {
-                if (printableClone && document.body.contains(printableClone)) {
-                    document.body.removeChild(printableClone);
-                }
-                btn.disabled = false;
-                btn.innerHTML = originalBtnText;
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
-            const langSelect = document.getElementById('lang-select');
-            const savedLang = localStorage.getItem('userLanguage') || 'fr';
-            switchLanguage(savedLang);
+            const translations = {
+                fr: {
+                    pageTitle: "Présentation de la Solution UbiTrack",
+                    nav_webapp: "Application Web",
+                    nav_mobileapp: "Application Mobile",
+                    nav_customization: "Personnalisation",
+                    nav_export_pdf: "Exporter en PDF",
+                    header_title: "Solution de Traçabilité RFID : UbiTrack",
+                    header_subtitle: "Propulsée par UBI Solutions - Optimisez Votre Traçabilité en Temps Réel",
+                    webapp_title: "Application Web UbiTrack",
+                    webapp_intro: "L'application web UbiTrack est l'interface centrale de gestion et de supervision des données de traçabilité. Elle permet de configurer le système, de gérer les référentiels et de visualiser l'ensemble des données métier collectées en temps réel.",
+                    webapp_auth_title: "Authentification Sécurisée",
+                    webapp_auth_desc: "Accès sécurisé par login/mot de passe avec intégration possible aux annuaires d'entreprise (LDAP, Azure AD).",
+                    webapp_config_title: "Gestion et Configuration",
+                    webapp_config_desc: "Paramétrez facilement les types d'articles, les localisations et tous les référentiels métiers depuis une interface claire.",
+                    webapp_data_vis_title: "Visualisation des Données",
+                    webapp_data_vis_desc: "Consultez le statut des articles, leur historique complet et l'état des stocks en temps réel grâce à des vues dotées de filtres avancés.",
+                    mobileapp_title: "Application Mobile",
+                    mobileapp_intro: "L'outil de terrain conçu pour les opérateurs. Simple, rapide et efficace pour toutes les opérations quotidiennes.",
+                    mobileapp_access_title: "Accès et Droits",
+                    mobileapp_access_desc: "Connexion sécurisée par utilisateur avec des menus et fonctionnalités qui s'adaptent aux droits de chacun.",
+                    mobileapp_features_title: "Fonctionnalités Métiers",
+                    mobileapp_features_desc: "Réalisez l'association article/tag, les inventaires, les entrées et les sorties de stock directement depuis le terminal.",
+                    mobileapp_geiger_title: "Recherche (Compteur Geiger)",
+                    mobileapp_geiger_desc: "Localisez facilement un article perdu grâce à un indicateur de proximité visuel et sonore.",
+                    mobileapp_admin_title: "Administration et Configuration",
+                    mobileapp_admin_desc: "Mise à jour simplifiée, configuration de la puissance RFID et verrouillage du terminal sur l'application (StageNow).",
+                    customization_title: "Personnalisation du Rapport",
+                    customization_client_title: "Informations Client",
+                    customization_client_name: "Nom du Client",
+                    customization_client_logo: "Logo du Client (PNG, JPG)",
+                    customization_commercial_title: "Contact Commercial",
+                    customization_technical_title: "Contact Technique",
+                    customization_contact_name: "Nom",
+                    customization_contact_email: "Adresse Mail",
+                    customization_contact_phone: "Téléphone",
+                    footer_text: "© 2025 UBI Solutions. Tous droits réservés.",
+                    pdf_title: "Présentation UbiTrack",
+                    pdf_author: "Auteur : CGZ",
+                    pdf_contacts_title: "Contacts",
+                    pdf_commercial_contact_title: "Contact Commercial",
+                    pdf_technical_contact_title: "Contact Technique"
+                },
+                en: {
+                    pageTitle: "UbiTrack Solution Presentation",
+                    nav_webapp: "Web Application",
+                    nav_mobileapp: "Mobile Application",
+                    nav_customization: "Customization",
+                    nav_export_pdf: "Export to PDF",
+                    header_title: "RFID Tracking Solution: UbiTrack",
+                    header_subtitle: "Powered by UBI Solutions - Optimize Your Real-Time Tracking",
+                    webapp_title: "UbiTrack Web Application",
+                    webapp_intro: "The UbiTrack web application is the central interface for the management and supervision of traceability data. It allows for system configuration, repository management, and real-time visualization of all collected business data.",
+                    webapp_auth_title: "Secure Authentication",
+                    webapp_auth_desc: "Secure access via login/password with possible integration with corporate directories (LDAP, Azure AD).",
+                    webapp_config_title: "Management and Configuration",
+                    webapp_config_desc: "Easily configure item types, locations, and all business repositories from a clear interface.",
+                    webapp_data_vis_title: "Data Visualization",
+                    webapp_data_vis_desc: "View the status of items, their complete history, and stock levels in real-time through views equipped with advanced filters.",
+                    mobileapp_title: "Mobile Application",
+                    mobileapp_intro: "The field tool designed for operators. Simple, fast, and efficient for all daily operations.",
+                    mobileapp_access_title: "Access and Permissions",
+                    mobileapp_access_desc: "Secure user login with menus and features that adapt to each user's permissions.",
+                    mobileapp_features_title: "Business Features",
+                    mobileapp_features_desc: "Perform item/tag association, inventories, and stock movements directly from the terminal.",
+                    mobileapp_geiger_title: "Search (Geiger Counter)",
+                    mobileapp_geiger_desc: "Easily locate a lost item with a visual and audible proximity indicator.",
+                    mobileapp_admin_title: "Administration and Configuration",
+                    mobileapp_admin_desc: "Simplified updates, RFID power configuration, and kiosk mode to lock the terminal to the application (StageNow).",
+                    customization_title: "Report Customization",
+                    customization_client_title: "Client Information",
+                    customization_client_name: "Client Name",
+                    customization_client_logo: "Client Logo (PNG, JPG)",
+                    customization_commercial_title: "Commercial Contact",
+                    customization_technical_title: "Technical Contact",
+                    customization_contact_name: "Name",
+                    customization_contact_email: "Email Address",
+                    customization_contact_phone: "Phone",
+                    footer_text: "© 2025 UBI Solutions. All rights reserved.",
+                    pdf_title: "UbiTrack Presentation",
+                    pdf_author: "Author: CGZ",
+                    pdf_contacts_title: "Contacts",
+                    pdf_commercial_contact_title: "Commercial Contact",
+                    pdf_technical_contact_title: "Technical Contact"
+                },
+                es: {
+                    pageTitle: "Presentación de la Solución UbiTrack",
+                    nav_webapp: "Aplicación Web",
+                    nav_mobileapp: "Aplicación Móvil",
+                    nav_customization: "Personalización",
+                    nav_export_pdf: "Exportar a PDF",
+                    header_title: "Solución de Trazabilidad RFID: UbiTrack",
+                    header_subtitle: "Impulsado por UBI Solutions - Optimice Su Trazabilidad en Tiempo Real",
+                    webapp_title: "Aplicación Web UbiTrack",
+                    webapp_intro: "La aplicación web UbiTrack es la interfaz central de gestión y supervisión de los datos de trazabilidad. Permite configurar el sistema, gestionar los repositorios y visualizar el conjunto de los datos de negocio recopilados en tiempo real.",
+                    webapp_auth_title: "Autenticación Segura",
+                    webapp_auth_desc: "Acceso seguro mediante usuario/contraseña con posible integración en directorios corporativos (LDAP, Azure AD).",
+                    webapp_config_title: "Gestión y Configuración",
+                    webapp_config_desc: "Configure fácilmente los tipos de artículos, las ubicaciones y todos los repositorios de negocio desde una interfaz clara.",
+                    webapp_data_vis_title: "Visualización de Datos",
+                    webapp_data_vis_desc: "Consulte el estado de los artículos, su historial completo y los niveles de stock en tiempo real a través de vistas con filtros avanzados.",
+                    mobileapp_title: "Aplicación Móvil",
+                    mobileapp_intro: "La herramienta de campo diseñada para los operadores. Sencilla, rápida y eficaz para todas las operaciones diarias.",
+                    mobileapp_access_title: "Acceso y Permisos",
+                    mobileapp_access_desc: "Inicio de sesión de usuario seguro con menús y funcionalidades que se adaptan a los permisos de cada uno.",
+                    mobileapp_features_title: "Funcionalidades de Negocio",
+                    mobileapp_features_desc: "Realice la asociación de artículo/etiqueta, inventarios y movimientos de stock directamente desde el terminal.",
+                    mobileapp_geiger_title: "Búsqueda (Contador Geiger)",
+                    mobileapp_geiger_desc: "Localice fácilmente un artículo perdido con un indicador de proximidad visual y sonoro.",
+                    mobileapp_admin_title: "Administración y Configuración",
+                    mobileapp_admin_desc: "Actualizaciones simplificadas, configuración de la potencia RFID y modo quiosco para bloquear el terminal en la aplicación (StageNow).",
+                    customization_title: "Personalización del Informe",
+                    customization_client_title: "Información del Cliente",
+                    customization_client_name: "Nombre del Cliente",
+                    customization_client_logo: "Logo del Cliente (PNG, JPG)",
+                    customization_commercial_title: "Contacto Comercial",
+                    customization_technical_title: "Contacto Técnico",
+                    customization_contact_name: "Nombre",
+                    customization_contact_email: "Correo Electrónico",
+                    customization_contact_phone: "Teléfono",
+                    footer_text: "© 2025 UBI Solutions. Todos los derechos reservados.",
+                    pdf_title: "Presentación UbiTrack",
+                    pdf_author: "Autor: CGZ",
+                    pdf_contacts_title: "Contactos",
+                    pdf_commercial_contact_title: "Contacto Comercial",
+                    pdf_technical_contact_title: "Contacto Técnico"
+                }
+            };
 
-            langSelect.addEventListener('change', (event) => {
-                switchLanguage(event.target.value);
+            const langSelector = document.getElementById('lang-select');
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
+
+            function applyLanguage(lang) {
+                document.documentElement.lang = lang;
+                langSelector.value = lang;
+                document.querySelectorAll('[data-lang-key]').forEach(el => {
+                    const key = el.getAttribute('data-lang-key');
+                    if(translations[lang][key]) {
+                        el.innerHTML = translations[lang][key];
+                    }
+                });
+                document.title = translations[lang].pageTitle;
+            }
+            
+            function preparePdfCustomElements() {
+                const lang = localStorage.getItem('selectedLanguage') || 'fr';
+                // Cover Page
+                document.querySelector('.cover-page h1').textContent = translations[lang].pdf_title;
+                document.querySelector('.cover-page p').textContent = translations[lang].pdf_author;
+                const clientName = localStorage.getItem('clientName') || '';
+                document.getElementById('clientNameCover').textContent = clientName;
+                const clientLogo = localStorage.getItem('clientLogoB64');
+                const clientLogoCoverEl = document.getElementById('clientLogoCover');
+                if (clientLogo && clientName) {
+                    clientLogoCoverEl.src = clientLogo;
+                    clientLogoCoverEl.style.display = 'block';
+                } else {
+                    clientLogoCoverEl.style.display = 'none';
+                }
+
+                // Contacts Page
+                document.querySelector('.contacts-page h2').textContent = translations[lang].pdf_contacts_title;
+                document.querySelector('.contacts-page .contact-block:nth-child(1) h3').textContent = translations[lang].pdf_commercial_contact_title;
+                document.querySelector('.contacts-page .contact-block:nth-child(2) h3').textContent = translations[lang].pdf_technical_contact_title;
+                
+                document.getElementById('pdfCommercialName').textContent = `Nom: ${localStorage.getItem('commercialName') || ''}`;
+                document.getElementById('pdfCommercialEmail').textContent = `Email: ${localStorage.getItem('commercialEmail') || ''}`;
+                document.getElementById('pdfCommercialPhone').textContent = `Tél: ${localStorage.getItem('commercialPhone') || ''}`;
+                document.getElementById('pdfTechnicalName').textContent = `Nom: ${localStorage.getItem('technicalName') || ''}`;
+                document.getElementById('pdfTechnicalEmail').textContent = `Email: ${localStorage.getItem('technicalEmail') || ''}`;
+                document.getElementById('pdfTechnicalPhone').textContent = `Tél: ${localStorage.getItem('technicalPhone') || ''}`;
+            }
+
+            // --- Initialisation ---
+            const savedLang = localStorage.getItem('selectedLanguage') || 'fr';
+            applyLanguage(savedLang);
+
+            langSelector.addEventListener('change', (e) => {
+                applyLanguage(e.target.value);
+                localStorage.setItem('selectedLanguage', e.target.value);
             });
 
-            document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
+            exportPdfBtn.addEventListener('click', () => {
+                preparePdfCustomElements();
+                window.print();
+            });
 
+            // --- Logique de Personnalisation ---
             const inputsToSave = [
                 'clientName', 'commercialName', 'commercialEmail', 'commercialPhone',
                 'technicalName', 'technicalEmail', 'technicalPhone'
